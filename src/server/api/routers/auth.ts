@@ -51,8 +51,14 @@ export const authRouter = createTRPCRouter({
        * bahwa user telah terdaftar.
        */
       if (userExist) {
+        let errorField = "";
+
+        if (userExist.email === email) errorField = "email";
+        if (userExist.username === username) errorField = "username";
+        if (userExist.identityId === identityId) errorField = "NIP/NIS";
+
         return {
-          message: "Akun Telah Terdaftar, silahkan menggunakan data diri lain!",
+          message: `Akun dengan ${errorField} ini telah terdaftar, silahkan menggunakan ${errorField} lain!`,
           success: false,
         };
       }

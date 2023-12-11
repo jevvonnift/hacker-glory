@@ -40,6 +40,7 @@ const RegisterForm = () => {
     handleSubmit,
     register,
     formState: { errors },
+    reset: resetForm,
   } = useForm<InferRegistrationSchemaForm>({
     defaultValues: {
       identityType: "NIS",
@@ -68,6 +69,7 @@ const RegisterForm = () => {
       });
     }
 
+    resetForm();
     return setAlertData({
       message: result.message,
       type: "success",
