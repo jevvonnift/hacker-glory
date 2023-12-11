@@ -16,6 +16,7 @@ export async function getAuthServerSession() {
           email: true,
           identityId: true,
           identityType: true,
+          image: true,
           roleId: true,
         },
       },

@@ -17,10 +17,11 @@ enum UserIdentityType {
 }
 
 model User {
-    id       String @id @default(cuid())
+    id       String  @id @default(cuid())
     password String
-    username String @unique
-    email    String @unique
+    username String  @unique
+    email    String  @unique
+    image    String?
 
     identityId   String
     identityType UserIdentityType
