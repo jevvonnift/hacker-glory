@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import Alert, { useAlert } from "~/components/Alert";
@@ -13,7 +12,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 /**
- * Skema dan pesan error form untuk registrasi user
+ * Skema dan pesan error form untuk login user
  */
 const LoginSchemaForm = z.object({
   username: z
@@ -27,7 +26,7 @@ const LoginSchemaForm = z.object({
 type LoginSchemaForm = z.infer<typeof LoginSchemaForm>;
 
 /**
- * Form HTML untuk registrasi user.
+ * Form HTML untuk login user.
  */
 const LoginForm = () => {
   const {
@@ -39,16 +38,32 @@ const LoginForm = () => {
   });
   const router = useRouter();
 
-  const { mutateAsync: loginUser } = api.auth.login.useMutation();
+  const { mutateAsync: loginUser, isLoading } = api.auth.login.useMutation();
   const { isShowing, setData: setAlertData, data: alertData } = useAlert();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /**
+   * Function onsubmit dijalankan ketika user submit
+   * form dan langsung request ke api
+   */
   const onSubmit: SubmitHandler<LoginSchemaForm> = async (data) => {
-    setIsSubmitting(true);
-    const result = await loginUser(data);
+    /**
+     * Data dari form di submit ke api
+     */
+    const result = await loginUser(data, {
+      onError: () => {
+        return setAlertData({
+          message: "Terjadi kesalahan, silahkan coba lagi!",
+          type: "error",
+        });
+      },
+    });
 
+    /**
+     * Jika ada kesalahan seperti user tidak terdaftar,
+     * password salah, dll. Akan di handle untuk memunculkan
+     * alert.
+     */
     if (!result.success) {
-      setIsSubmitting(false);
       return setAlertData({
         message: result.message,
         type: "error",
@@ -56,13 +71,16 @@ const LoginForm = () => {
     }
 
     if (!result.data) {
-      setIsSubmitting(false);
       return setAlertData({
         message: "Terjadi kesalahan, silahkan coba lagi!",
         type: "error",
       });
     }
 
+    /**
+     * Jika ada data sukses, maka akan mengebalikan
+     * token, lalu token disimpan di cookies.
+     */
     Cookies.set("token", result.data.sessionToken, { expires: 2 });
     router.push("/");
     return setAlertData({
@@ -113,7 +131,7 @@ const LoginForm = () => {
 
       <Button
         className="bg-yellow-300  hover:bg-yellow-400"
-        disabled={isSubmitting}
+        disabled={isLoading}
       >
         Masuk
       </Button>

@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserIdentityType } from "@prisma/client";
 import Link from "next/link";
-import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import Alert, { useAlert } from "~/components/Alert";
@@ -48,14 +47,19 @@ const RegisterForm = () => {
     resolver: zodResolver(RegistrationSchemaForm),
   });
 
-  const { mutateAsync: registerUser } = api.auth.register.useMutation();
+  const { mutateAsync: registerUser, isLoading } =
+    api.auth.register.useMutation();
   const { isShowing, setData: setAlertData, data: alertData } = useAlert();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit: SubmitHandler<InferRegistrationSchemaForm> = async (data) => {
-    setIsSubmitting(true);
-    const result = await registerUser(data);
-    setIsSubmitting(false);
+    const result = await registerUser(data, {
+      onError: () => {
+        return setAlertData({
+          message: "Terjadi kesalahan, silahkan coba lagi!",
+          type: "error",
+        });
+      },
+    });
 
     if (!result.success) {
       return setAlertData({
@@ -153,7 +157,7 @@ const RegisterForm = () => {
 
       <Button
         className="bg-yellow-300  hover:bg-yellow-400"
-        disabled={isSubmitting}
+        disabled={isLoading}
       >
         Daftar
       </Button>

@@ -211,4 +211,10 @@ export const authRouter = createTRPCRouter({
       success: true,
     };
   }),
+  /**
+   * Function session yang me-return data user untuk client
+   */
+  session: protectedProcedure.query(({ ctx }) => {
+    return ctx.session;
+  }),
 });

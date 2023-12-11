@@ -6,7 +6,7 @@ import Button from "~/components/Button";
 import { api } from "~/trpc/react";
 
 const LogoutButton = () => {
-  const { mutateAsync: logoutUser } = api.auth.logout.useMutation();
+  const { mutateAsync: logoutUser, isLoading } = api.auth.logout.useMutation();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -15,7 +15,11 @@ const LogoutButton = () => {
     router.refresh();
   };
 
-  return <Button onClick={handleLogout}>Logout</Button>;
+  return (
+    <Button onClick={handleLogout} disabled={isLoading}>
+      Logout
+    </Button>
+  );
 };
 
 export default LogoutButton;
