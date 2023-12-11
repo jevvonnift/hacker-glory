@@ -85,7 +85,7 @@ const LoginForm = () => {
           Username
         </label>
         <Input
-          placeholder="Masukkan Username"
+          placeholder="Masukkan Email / Username / NIP / NIS"
           type="text"
           id="username"
           className="text-md mt-2 w-full"

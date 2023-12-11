@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { UserIdentityType } from "@prisma/client";
 import * as bcrypt from "bcrypt";
-import type { NextRequest, NextResponse } from "next/server";
-import { db } from "~/server/db";
 import { uuid } from "uuidv4";
 
 export const authRouter = createTRPCRouter({
@@ -198,24 +196,19 @@ export const authRouter = createTRPCRouter({
         success: true,
       };
     }),
+  /**
+   * Function Logout untuk keluar
+   */
+  logout: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.db.session.deleteMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+    });
+
+    return {
+      message: "Kamu berhasil keluar!",
+      success: true,
+    };
+  }),
 });
-
-export async function getAuthServerSession({
-  req,
-}: {
-  req: NextRequest;
-  res: NextResponse;
-}) {
-  const token = req.cookies.get("token");
-
-  if (!token) return null;
-
-  const userAndSession = await db.session.findUnique({
-    where: { sessionToken: token.value },
-    include: { user: true },
-  });
-
-  if (!userAndSession) return null;
-  const { user, ...session } = userAndSession;
-  return { user, session };
-}
