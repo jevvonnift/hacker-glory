@@ -1,16 +1,27 @@
 "use client";
 
 import Cookies from "js-cookie";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 
 const useSession = () => {
-  const { data: session, isLoading, isError } = api.auth.session.useQuery();
+  const [enableFetch, setEnableFetch] = useState(false);
+  const {
+    data: session,
+    isLoading,
+    isError,
+  } = api.auth.session.useQuery(undefined, {
+    enabled: enableFetch,
+  });
 
   useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) {
+      setEnableFetch(true);
+    }
+
     if (isError) {
       Cookies.remove("token");
-      window.location.reload();
     }
   }, [isError]);
 
