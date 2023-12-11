@@ -87,7 +87,7 @@ const RegisterForm = () => {
           placeholder="Masukkan Username"
           type="text"
           id="username"
-          className="text-md w-full"
+          className="text-md mt-2 w-full"
           {...register("username", { required: true })}
         />
         {errors.username && (
@@ -102,7 +102,7 @@ const RegisterForm = () => {
           placeholder="Masukkan Email"
           type="email"
           id="email"
-          className="text-md w-full"
+          className="text-md mt-2 w-full"
           {...register("email", { required: true })}
         />
         {errors.email && (
@@ -117,7 +117,7 @@ const RegisterForm = () => {
           placeholder="Masukkan Password"
           type="password"
           id="password"
-          className="text-md w-full"
+          className="text-md mt-2 w-full"
           {...register("password", { required: true })}
         />
         {errors.password && (
@@ -128,7 +128,7 @@ const RegisterForm = () => {
         <label htmlFor="identity" className="text-md mb-2">
           NIP / NIS
         </label>
-        <div className="flex gap-2">
+        <div className="mt-2 flex gap-2">
           <select
             {...register("identityType")}
             className="rounded-md border px-4 py-2 focus-visible:outline-none"
@@ -140,7 +140,7 @@ const RegisterForm = () => {
             placeholder="Masukkan NIP/NIS"
             type="text"
             id="identity"
-            className="text-md w-full"
+            className="text-md w-full "
             {...register("identityId", { required: true })}
           />
         </div>
@@ -160,7 +160,7 @@ const RegisterForm = () => {
 
       <p>
         Sudah punya akun ?{" "}
-        <Link href="/" className="text-blue-500">
+        <Link href="/login" className="text-blue-500">
           Masuk Disini
         </Link>
       </p>

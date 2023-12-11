@@ -5,7 +5,7 @@ const RegisterPage = () => {
     <div className="flex h-screen w-full flex-col items-center justify-center">
       <h1 className="text-xl font-semibold">Buat Akun Kamu</h1>
 
-      <div className="w-full max-w-md">
+      <div className="mt-6 w-full max-w-md">
         <RegisterForm />
       </div>
     </div>
