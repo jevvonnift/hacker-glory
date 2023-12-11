@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { UserIdentityType } from "@prisma/client";
 import * as bcrypt from "bcrypt";
-import { uuid } from "uuidv4";
+import { v4 as uuidv4 } from "uuid";
 
 export const authRouter = createTRPCRouter({
   /**
@@ -174,7 +174,7 @@ export const authRouter = createTRPCRouter({
        * Jika Password yang dimasukkan benar maka
        * akan membuat session token yang disimpan di database
        */
-      const sessionToken = uuid();
+      const sessionToken = uuidv4();
       const session = await ctx.db.session.create({
         data: {
           sessionToken,
