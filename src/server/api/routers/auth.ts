@@ -103,6 +103,10 @@ export const authRouter = createTRPCRouter({
         success: true,
       };
     }),
+  /**
+   * Function Login untuk login user dengan menerima
+   * paramater username dan password
+   */
   login: publicProcedure
     .input(
       z.object({
@@ -113,6 +117,11 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { username, password } = input;
 
+      /**
+       * Sebelum melakukan login akun, input harus di cek terlebih
+       * dahulu apakah user sudah terdaftar atau belum. Input yang di cek
+       * adalah email, username, identityId dengan parameter username.
+       */
       const user = await ctx.db.user.findFirst({
         where: {
           OR: [
@@ -129,22 +138,38 @@ export const authRouter = createTRPCRouter({
         },
       });
 
+      /**
+       * Jika user tidak ditemukan maka akan mengembalikan pesan
+       * untuk periksa kembali data diri yang dimasukkan
+       */
       if (!user) {
         return {
-          message: "Mohon periksa kembali data diri anda!",
+          message: "Mohon periksa kembali data diri kamu!",
           success: false,
         };
       }
 
+      /**
+       * Jika user ditemukan maka selanjutnya adalah
+       * pengecekan password yang dimasukkan.
+       */
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
+      /**
+       * Jika Password yang dimasukkan salah maka
+       * akan mengembalikan pesan untuk periksa kembali data diri yang dimasukkan.
+       */
       if (!isPasswordValid) {
         return {
-          message: "Mohon periksa kembali data diri anda!",
+          message: "Mohon periksa kembali data diri kamu!",
           success: false,
         };
       }
 
+      /**
+       * Jika Password yang dimasukkan benar maka
+       * akan membuat session token yang disimpan di database
+       */
       const sessionToken = uuid();
       const session = await ctx.db.session.create({
         data: {
@@ -156,13 +181,17 @@ export const authRouter = createTRPCRouter({
 
       if (!session) {
         return {
-          message: "Mohon periksa kembali data diri anda!",
+          message: "Mohon periksa kembali data diri kamu!",
           success: false,
         };
       }
 
+      /**
+       * Setelah seselesai membuat token, akan mengembalikan token
+       * untuk disimpan di cookie browser
+       */
       return {
-        message: "Mohon periksa kembali data diri anda!",
+        message: "Kamu berhasil masuk!",
         data: {
           sessionToken,
         },
