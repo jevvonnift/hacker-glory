@@ -22,7 +22,10 @@ export async function getAuthServerSession() {
     },
   });
 
-  if (!userAndSession) return null;
+  if (!userAndSession) {
+    cookies().delete("token");
+    return null;
+  }
 
   const userRole = await db.role.findUnique({
     where: { id: userAndSession.user.roleId },

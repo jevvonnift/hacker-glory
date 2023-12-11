@@ -9,7 +9,6 @@ import Button from "~/components/Button";
 import Input from "~/components/Input";
 import { api } from "~/trpc/react";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
 
 /**
  * Skema dan pesan error form untuk login user
@@ -36,7 +35,6 @@ const LoginForm = () => {
   } = useForm<LoginSchemaForm>({
     resolver: zodResolver(LoginSchemaForm),
   });
-  const router = useRouter();
 
   const { mutateAsync: loginUser, isLoading } = api.auth.login.useMutation();
   const { isShowing, setData: setAlertData, data: alertData } = useAlert();
@@ -82,7 +80,7 @@ const LoginForm = () => {
      * token, lalu token disimpan di cookies.
      */
     Cookies.set("token", result.data.sessionToken, { expires: 2 });
-    router.push("/");
+    window.location.href = "/";
     return setAlertData({
       message: result.message,
       type: "success",
@@ -103,7 +101,7 @@ const LoginForm = () => {
           Username
         </label>
         <Input
-          placeholder="Masukkan Email / Username / NIP / NIS"
+          placeholder="Email / Username / NIP / NIS"
           type="text"
           id="username"
           className="text-md mt-2 w-full"
@@ -118,7 +116,7 @@ const LoginForm = () => {
           Password
         </label>
         <Input
-          placeholder="Masukkan Password"
+          placeholder="Password"
           type="password"
           id="password"
           className="text-md mt-2 w-full"

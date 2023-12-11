@@ -90,7 +90,7 @@ const RegisterForm = () => {
           Username
         </label>
         <Input
-          placeholder="Masukkan Username"
+          placeholder="Username"
           type="text"
           id="username"
           className="text-md mt-2 w-full"
@@ -105,7 +105,7 @@ const RegisterForm = () => {
           Email
         </label>
         <Input
-          placeholder="Masukkan Email"
+          placeholder="Email"
           type="email"
           id="email"
           className="text-md mt-2 w-full"
@@ -120,7 +120,7 @@ const RegisterForm = () => {
           Password
         </label>
         <Input
-          placeholder="Masukkan Password"
+          placeholder="Password"
           type="password"
           id="password"
           className="text-md mt-2 w-full"
@@ -143,7 +143,7 @@ const RegisterForm = () => {
             <option value={UserIdentityType.NIS}>NIS</option>
           </select>
           <Input
-            placeholder="Masukkan NIP/NIS"
+            placeholder="NIP/NIS"
             type="text"
             id="identity"
             className="text-md w-full "
