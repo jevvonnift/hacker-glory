@@ -11,7 +11,7 @@ const useLogout = () => {
       console.log(error);
     } finally {
       Cookies.remove("token");
-      window.location.reload();
+      window.location.href = "/";
     }
   };
 

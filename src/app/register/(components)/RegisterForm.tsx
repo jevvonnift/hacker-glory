@@ -17,6 +17,7 @@ const RegistrationSchemaForm = z.object({
   username: z
     .string({ required_error: "Username wajib diisi!" })
     .min(6, { message: "Username minimal memiliki 6 karakter!" })
+    .max(10, { message: "Username tidak boleh lebih dari 10 karakter!" })
     .refine((s) => !s.includes(" "), "Tidak boleh ada spasi!"),
   email: z
     .string({ required_error: "Email wajib diisi!" })

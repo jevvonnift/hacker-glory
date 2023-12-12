@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="font-rubik">
+      <body className="relative min-h-screen bg-slate-100 p-4 font-rubik">
         <TRPCReactProvider cookies={cookies().toString()}>
           {children}
         </TRPCReactProvider>
