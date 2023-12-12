@@ -5,6 +5,7 @@ import { UserIdentityType } from "@prisma/client";
 import { CheckIcon, PencilIcon, XIcon } from "lucide-react";
 import { type ChangeEvent, useState, useEffect } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
 // import Alert from "~/components/Alert";
 import Avatar from "~/components/Avatar";
@@ -61,8 +62,9 @@ const UpdateProfileForm = () => {
 
     const file = e.target.files[0];
 
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return;
+    if (!file) return toast.error("Tidak ada file yang dipilih!");
+    if (!file.type.startsWith("image/"))
+      return toast.error("File yang dipilih harus gambar!");
 
     const arrBuffer = await file.arrayBuffer();
     const blob = new Blob([Buffer.from(arrBuffer)]);
@@ -96,8 +98,14 @@ const UpdateProfileForm = () => {
         };
       };
 
-      if (!data.success) return setIsLoadingUploadFile(false);
-      if (!data.data) return setIsLoadingUploadFile(false);
+      if (!data.success) {
+        setIsLoadingUploadFile(false);
+        return toast.error("Terjadi kesalahan, silahkan coba lagi!");
+      }
+      if (!data.data) {
+        setIsLoadingUploadFile(false);
+        return toast.error("Terjadi kesalahan, silahkan coba lagi!");
+      }
 
       uploadProfilePicture(
         {
@@ -105,14 +113,16 @@ const UpdateProfileForm = () => {
         },
         {
           async onSuccess(data) {
-            if (!data.success) return console.log("Tidak sukses");
+            if (!data.success) return toast.error(data.message);
 
             await refetchProfileData();
             setChoosenFile(null);
             setIsLoadingUploadFile(false);
+            return toast.success(data.message);
           },
           onError() {
             setIsLoadingUploadFile(false);
+            return toast.error("Terjadi kesalahan, silahkan coba lagi!");
           },
         },
       );
@@ -124,14 +134,14 @@ const UpdateProfileForm = () => {
 
   const onSubmit: SubmitHandler<UpdateProfileFormSchema> = async (data) => {
     updateProfile(data, {
+      onError() {
+        return toast.error("Terjadi kesalahan, silahkan coba lagi!");
+      },
       async onSuccess(data) {
-        if (!data.success) {
-          console.log(data.message);
-          return;
-        }
+        if (!data.success) return toast.error(data.message);
 
         await refetchProfileData();
-        console.log(data.message);
+        return toast.success(data.message);
       },
     });
   };

@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { cookies } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   title: "School Wall",
@@ -20,6 +21,7 @@ export default function RootLayout({
       <body className="relative min-h-screen bg-slate-100 p-4 font-rubik">
         <TRPCReactProvider cookies={cookies().toString()}>
           {children}
+          <Toaster position="top-center" />
         </TRPCReactProvider>
       </body>
     </html>

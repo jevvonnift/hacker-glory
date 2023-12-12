@@ -27,7 +27,7 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const uploadPath = join("./", "public", "uploads");
+      const uploadPath = join("./", "public");
 
       if (ctx.session.user.image !== "/img/default-user.png") {
         try {

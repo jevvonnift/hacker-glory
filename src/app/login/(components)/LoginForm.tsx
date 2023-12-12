@@ -4,11 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import Alert, { useAlert } from "~/components/Alert";
 import Button from "~/components/Button";
 import Input from "~/components/Input";
 import { api } from "~/trpc/react";
 import Cookies from "js-cookie";
+import toast from "react-hot-toast";
 
 /**
  * Skema dan pesan error form untuk login user
@@ -37,7 +37,6 @@ const LoginForm = () => {
   });
 
   const { mutateAsync: loginUser, isLoading } = api.auth.login.useMutation();
-  const { isShowing, setData: setAlertData, data: alertData } = useAlert();
 
   /**
    * Function onsubmit dijalankan ketika user submit
@@ -49,10 +48,7 @@ const LoginForm = () => {
      */
     const result = await loginUser(data, {
       onError: () => {
-        return setAlertData({
-          message: "Terjadi kesalahan, silahkan coba lagi!",
-          type: "error",
-        });
+        return toast.error("Terjadi kesalahan, silahkan coba lagi!");
       },
     });
 
@@ -62,17 +58,11 @@ const LoginForm = () => {
      * alert.
      */
     if (!result.success) {
-      return setAlertData({
-        message: result.message,
-        type: "error",
-      });
+      return toast.error(result.message);
     }
 
     if (!result.data) {
-      return setAlertData({
-        message: "Terjadi kesalahan, silahkan coba lagi!",
-        type: "error",
-      });
+      return toast.error(result.message);
     }
 
     /**
@@ -81,21 +71,11 @@ const LoginForm = () => {
      */
     Cookies.set("token", result.data.sessionToken, { expires: 2 });
     window.location.href = "/";
-    return setAlertData({
-      message: result.message,
-      type: "success",
-    });
+    return toast.success(result.message);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-      {isShowing && alertData && (
-        <Alert
-          type={alertData.type}
-          message={alertData.message}
-          className="mt-2"
-        />
-      )}
       <div>
         <label htmlFor="username" className="text-md">
           Email / Username
