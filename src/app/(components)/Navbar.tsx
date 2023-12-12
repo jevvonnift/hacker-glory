@@ -18,10 +18,14 @@ const MainPageNavbar = () => {
         ) : (
           <>
             <Link href="/login">
-              <Button className="px-4">Masuk</Button>
+              <Button className="rounded-full px-6 transition-all hover:bg-slate-500 hover:text-white">
+                Masuk
+              </Button>
             </Link>
             <Link href="/register">
-              <Button className="px-4">Daftar</Button>
+              <Button className="rounded-full px-6 transition-all hover:bg-slate-500 hover:text-white">
+                Daftar
+              </Button>
             </Link>
           </>
         )}

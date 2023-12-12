@@ -10,7 +10,7 @@ const Logo = forwardRef<HTMLHeadingElement, Props>(
       <Link href={"/"}>
         <h1
           className={cn(
-            "font-rubik-bubbles pointer-events-none select-none text-3xl text-gray-500",
+            "font-rubik-bubbles select-none  text-3xl  text-yellow-400 transition-all",
             className,
           )}
           ref={ref}

@@ -19,7 +19,11 @@ const LogoutButton = () => {
   };
 
   return (
-    <Button onClick={handleLogout} disabled={isLoading}>
+    <Button
+      onClick={handleLogout}
+      className="rounded-full bg-yellow-400 px-4 text-white hover:bg-yellow-500"
+      disabled={isLoading}
+    >
       Logout
     </Button>
   );

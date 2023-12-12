@@ -77,7 +77,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {isShowing && alertData && (
         <Alert
           type={alertData.type}
@@ -97,7 +97,9 @@ const RegisterForm = () => {
           {...register("username", { required: true })}
         />
         {errors.username && (
-          <small className="mt-1 text-red-500">{errors.username.message}</small>
+          <small className="mt-1 text-sm text-red-500">
+            {errors.username.message}
+          </small>
         )}
       </div>
       <div>
@@ -112,7 +114,9 @@ const RegisterForm = () => {
           {...register("email", { required: true })}
         />
         {errors.email && (
-          <small className="mt-1 text-red-500">{errors.email.message}</small>
+          <small className="mt-1 text-sm text-red-500">
+            {errors.email.message}
+          </small>
         )}
       </div>
       <div>
@@ -127,7 +131,9 @@ const RegisterForm = () => {
           {...register("password", { required: true })}
         />
         {errors.password && (
-          <small className="mt-1 text-red-500">{errors.password.message}</small>
+          <small className="mt-1 text-sm text-red-500">
+            {errors.password.message}
+          </small>
         )}
       </div>
       <div>
@@ -151,14 +157,14 @@ const RegisterForm = () => {
           />
         </div>
         {errors.identityId && (
-          <small className="mt-1 text-red-500">
+          <small className="mt-1 text-sm text-red-500">
             {errors.identityId.message}
           </small>
         )}
       </div>
 
       <Button
-        className="bg-yellow-300  hover:bg-yellow-400"
+        className="mt-4 rounded-full bg-yellow-400 text-white hover:bg-yellow-500"
         disabled={isLoading}
       >
         Daftar

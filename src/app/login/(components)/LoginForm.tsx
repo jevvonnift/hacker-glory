@@ -88,7 +88,7 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       {isShowing && alertData && (
         <Alert
           type={alertData.type}
@@ -98,17 +98,19 @@ const LoginForm = () => {
       )}
       <div>
         <label htmlFor="username" className="text-md">
-          Username
+          Email / Username
         </label>
         <Input
-          placeholder="Email / Username / NIP / NIS"
+          placeholder="Email / Username"
           type="text"
           id="username"
           className="text-md mt-2 w-full"
           {...register("username", { required: true })}
         />
         {errors.username && (
-          <small className="mt-1 text-red-500">{errors.username.message}</small>
+          <small className="mt-1 text-sm text-red-500">
+            {errors.username.message}
+          </small>
         )}
       </div>
       <div>
@@ -123,12 +125,14 @@ const LoginForm = () => {
           {...register("password", { required: true })}
         />
         {errors.password && (
-          <small className="mt-1 text-red-500">{errors.password.message}</small>
+          <small className="mt-1 text-sm text-red-500">
+            {errors.password.message}
+          </small>
         )}
       </div>
 
       <Button
-        className="bg-yellow-300  hover:bg-yellow-400"
+        className="mt-4 rounded-full bg-yellow-400 text-white hover:bg-yellow-500"
         disabled={isLoading}
       >
         Masuk

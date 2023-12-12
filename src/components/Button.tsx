@@ -8,7 +8,7 @@ const Button = forwardRef<HTMLButtonElement, Props>(
     return (
       <button
         className={cn(
-          "rounded-md border  bg-white p-2 hover:bg-slate-100 disabled:opacity-80 hover:disabled:opacity-80",
+          "rounded-md border bg-white p-2 transition-all hover:bg-slate-100 disabled:opacity-80 hover:disabled:opacity-80",
           className,
         )}
         ref={ref}
