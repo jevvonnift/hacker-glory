@@ -22,7 +22,7 @@ const RegistrationSchemaForm = z.object({
     .string({ required_error: "Email wajib diisi!" })
     .email({ message: "Email tidak valid!" }),
   password: z
-    .string({ required_error: "Email wajib diisi!" })
+    .string({ required_error: "Password wajib diisi!" })
     .min(8, { message: "Password minimal 8 karakter!" }),
   identityId: z
     .string({ required_error: "NIP/NIS wajib diisi!" })
@@ -52,7 +52,14 @@ const RegisterForm = () => {
     api.auth.register.useMutation();
   const { isShowing, setData: setAlertData, data: alertData } = useAlert();
 
+  /**
+   * Function onsubmit dijalankan ketika user submit
+   * form dan langsung request ke api
+   */
   const onSubmit: SubmitHandler<InferRegistrationSchemaForm> = async (data) => {
+    /**
+     * Data dari form di submit ke api
+     */
     const result = await registerUser(data, {
       onError: () => {
         return setAlertData({
@@ -62,6 +69,11 @@ const RegisterForm = () => {
       },
     });
 
+    /**
+     * Jika ada kesalahan seperti user sudah terdaftar,
+     * maka akan di handle untuk memunculkan
+     * alert.
+     */
     if (!result.success) {
       return setAlertData({
         message: result.message,
@@ -69,6 +81,10 @@ const RegisterForm = () => {
       });
     }
 
+    /**
+     * Jika ada data sukses, maka akan mengebalikan
+     * mereset form , dan memunculkan alert success
+     */
     resetForm();
     return setAlertData({
       message: result.message,
@@ -77,7 +93,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
       {isShowing && alertData && (
         <Alert
           type={alertData.type}
@@ -164,7 +180,7 @@ const RegisterForm = () => {
       </div>
 
       <Button
-        className="mt-4 rounded-full bg-yellow-400 text-white hover:bg-yellow-500"
+        className="mt-2 rounded-full bg-yellow-400 text-white hover:bg-yellow-500"
         disabled={isLoading}
       >
         Daftar

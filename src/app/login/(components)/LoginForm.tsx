@@ -18,8 +18,8 @@ const LoginSchemaForm = z.object({
     .string({ required_error: "Username wajib diisi!" })
     .min(1, { message: "Username wajib diisi!" }),
   password: z
-    .string({ required_error: "Email wajib diisi!" })
-    .min(1, { message: "Username wajib diisi!" }),
+    .string({ required_error: "Password wajib diisi!" })
+    .min(1, { message: "Password wajib diisi!" }),
 });
 
 type LoginSchemaForm = z.infer<typeof LoginSchemaForm>;
@@ -88,7 +88,7 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
       {isShowing && alertData && (
         <Alert
           type={alertData.type}
@@ -132,7 +132,7 @@ const LoginForm = () => {
       </div>
 
       <Button
-        className="mt-4 rounded-full bg-yellow-400 text-white hover:bg-yellow-500"
+        className="mt-2 rounded-full bg-yellow-400 text-white hover:bg-yellow-500"
         disabled={isLoading}
       >
         Masuk
