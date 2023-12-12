@@ -22,6 +22,7 @@ const useSession = () => {
 
     if (isError) {
       Cookies.remove("token");
+      setEnableFetch(false);
     }
   }, [isError]);
 
