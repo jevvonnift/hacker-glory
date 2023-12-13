@@ -1,22 +1,29 @@
 "use client";
 
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
 import Button from "~/components/Button";
 import { api } from "~/trpc/react";
 
 const LogoutButton = () => {
   const { mutateAsync: logoutUser, isLoading } = api.auth.logout.useMutation();
-  const router = useRouter();
 
   const handleLogout = async () => {
-    await logoutUser();
-    Cookies.remove("token");
-    router.refresh();
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      Cookies.remove("token");
+      window.location.reload();
+    }
   };
 
   return (
-    <Button onClick={handleLogout} disabled={isLoading}>
+    <Button
+      onClick={handleLogout}
+      className="rounded-full bg-yellow-400 px-4 text-white hover:bg-yellow-500"
+      disabled={isLoading}
+    >
       Logout
     </Button>
   );

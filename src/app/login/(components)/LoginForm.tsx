@@ -4,12 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
-import Alert, { useAlert } from "~/components/Alert";
 import Button from "~/components/Button";
 import Input from "~/components/Input";
 import { api } from "~/trpc/react";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 /**
  * Skema dan pesan error form untuk login user
@@ -19,8 +18,8 @@ const LoginSchemaForm = z.object({
     .string({ required_error: "Username wajib diisi!" })
     .min(1, { message: "Username wajib diisi!" }),
   password: z
-    .string({ required_error: "Email wajib diisi!" })
-    .min(1, { message: "Username wajib diisi!" }),
+    .string({ required_error: "Password wajib diisi!" })
+    .min(1, { message: "Password wajib diisi!" }),
 });
 
 type LoginSchemaForm = z.infer<typeof LoginSchemaForm>;
@@ -36,10 +35,8 @@ const LoginForm = () => {
   } = useForm<LoginSchemaForm>({
     resolver: zodResolver(LoginSchemaForm),
   });
-  const router = useRouter();
 
   const { mutateAsync: loginUser, isLoading } = api.auth.login.useMutation();
-  const { isShowing, setData: setAlertData, data: alertData } = useAlert();
 
   /**
    * Function onsubmit dijalankan ketika user submit
@@ -51,10 +48,7 @@ const LoginForm = () => {
      */
     const result = await loginUser(data, {
       onError: () => {
-        return setAlertData({
-          message: "Terjadi kesalahan, silahkan coba lagi!",
-          type: "error",
-        });
+        return toast.error("Terjadi kesalahan, silahkan coba lagi!");
       },
     });
 
@@ -64,17 +58,11 @@ const LoginForm = () => {
      * alert.
      */
     if (!result.success) {
-      return setAlertData({
-        message: result.message,
-        type: "error",
-      });
+      return toast.error(result.message);
     }
 
     if (!result.data) {
-      return setAlertData({
-        message: "Terjadi kesalahan, silahkan coba lagi!",
-        type: "error",
-      });
+      return toast.error(result.message);
     }
 
     /**
@@ -82,35 +70,27 @@ const LoginForm = () => {
      * token, lalu token disimpan di cookies.
      */
     Cookies.set("token", result.data.sessionToken, { expires: 2 });
-    router.push("/");
-    return setAlertData({
-      message: result.message,
-      type: "success",
-    });
+    window.location.href = "/";
+    return toast.success(result.message);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-      {isShowing && alertData && (
-        <Alert
-          type={alertData.type}
-          message={alertData.message}
-          className="mt-2"
-        />
-      )}
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
       <div>
         <label htmlFor="username" className="text-md">
-          Username
+          Email / Username
         </label>
         <Input
-          placeholder="Masukkan Email / Username / NIP / NIS"
+          placeholder="Email / Username"
           type="text"
           id="username"
           className="text-md mt-2 w-full"
           {...register("username", { required: true })}
         />
         {errors.username && (
-          <small className="mt-1 text-red-500">{errors.username.message}</small>
+          <small className="mt-1 text-sm text-red-500">
+            {errors.username.message}
+          </small>
         )}
       </div>
       <div>
@@ -118,19 +98,21 @@ const LoginForm = () => {
           Password
         </label>
         <Input
-          placeholder="Masukkan Password"
+          placeholder="Password"
           type="password"
           id="password"
           className="text-md mt-2 w-full"
           {...register("password", { required: true })}
         />
         {errors.password && (
-          <small className="mt-1 text-red-500">{errors.password.message}</small>
+          <small className="mt-1 text-sm text-red-500">
+            {errors.password.message}
+          </small>
         )}
       </div>
 
       <Button
-        className="bg-yellow-300  hover:bg-yellow-400"
+        className="mt-2 rounded-full bg-yellow-400 text-white hover:bg-yellow-500"
         disabled={isLoading}
       >
         Masuk

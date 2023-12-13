@@ -80,8 +80,9 @@ export const authRouter = createTRPCRouter({
           username,
           identityId,
           identityType,
+          image: "/img/default-user.png",
           createdAt: new Date(),
-          roleId: 1,
+          roleId: 2,
         },
       });
 

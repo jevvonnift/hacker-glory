@@ -16,13 +16,17 @@ export async function getAuthServerSession() {
           email: true,
           identityId: true,
           identityType: true,
+          image: true,
           roleId: true,
         },
       },
     },
   });
 
-  if (!userAndSession) return null;
+  if (!userAndSession) {
+    cookies().delete("token");
+    return null;
+  }
 
   const userRole = await db.role.findUnique({
     where: { id: userAndSession.user.roleId },
