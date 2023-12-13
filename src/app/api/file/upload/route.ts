@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
    */
   if (!file)
     return NextResponse.json({
-      message: "No file provided",
+      message: "Tidak ada file untuk di proses!",
       success: false,
     });
 
@@ -37,7 +37,19 @@ export async function POST(req: NextRequest) {
    */
   if (!file.type.startsWith("image/"))
     return NextResponse.json({
-      message: "File is not an image",
+      message: "File harus gambar!",
+      success: false,
+    });
+
+  /**
+   * Check file size
+   * If file size is more then 5MB
+   * then will return message with false success
+   */
+  if (file.size > 655360)
+    // 5MB
+    return NextResponse.json({
+      message: "File terlalu besar, file maximal 2MB!",
       success: false,
     });
 
@@ -78,7 +90,7 @@ export async function POST(req: NextRequest) {
      * with the unique name file and the file buffer.
      */
     return NextResponse.json({
-      message: "File uploaded",
+      message: "File berhasil di upload!",
       success: true,
       data: {
         imagePath: `/uploads/${uniqueName}`,
@@ -90,7 +102,7 @@ export async function POST(req: NextRequest) {
      * then it will return a message and false success.
      */
     return NextResponse.json({
-      message: "Something went wrong!",
+      message: "Terjadi kesalahan, silahkan coba lagi!",
       success: true,
       data: {
         imagePath: `/uploads/${uniqueName}`,

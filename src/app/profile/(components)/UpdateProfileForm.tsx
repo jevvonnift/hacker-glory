@@ -100,7 +100,7 @@ const UpdateProfileForm = () => {
 
       if (!data.success) {
         setIsLoadingUploadFile(false);
-        return toast.error("Terjadi kesalahan, silahkan coba lagi!");
+        return toast.error(data.message);
       }
       if (!data.data) {
         setIsLoadingUploadFile(false);
