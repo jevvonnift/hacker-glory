@@ -23,6 +23,7 @@ const useSession = () => {
     if (isError) {
       Cookies.remove("token");
       setEnableFetch(false);
+      window.location.reload();
     }
   }, [isError]);
 
