@@ -1,8 +1,16 @@
 "use client";
 
 import type { BlockNoteEditor } from "@blocknote/core";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import {
+  BlockNoteView,
+  FormattingToolbarPositioner,
+  HyperlinkToolbarPositioner,
+  ImageToolbarPositioner,
+  SlashMenuPositioner,
+  useBlockNote,
+} from "@blocknote/react";
 import "@blocknote/core/style.css";
+import "~/styles/custom.css";
 
 type Props = {
   onChange: (value: string) => void;
@@ -17,10 +25,16 @@ const ArticleEditor = ({ editable, initialContent, onChange }: Props) => {
     onEditorContentChange: (editor) => {
       onChange(JSON.stringify(editor.topLevelBlocks, null, 2));
     },
-    // editable: false,
   });
 
-  return <BlockNoteView editor={editor} theme="light" className="w-full" />;
+  return (
+    <BlockNoteView editor={editor} theme="light" className="w-full">
+      <FormattingToolbarPositioner editor={editor} />
+      <HyperlinkToolbarPositioner editor={editor} />
+      <SlashMenuPositioner editor={editor} />
+      <ImageToolbarPositioner editor={editor} />
+    </BlockNoteView>
+  );
 };
 
 export default ArticleEditor;

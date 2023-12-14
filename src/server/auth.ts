@@ -33,11 +33,13 @@ export async function getAuthServerSession() {
   });
 
   if (!userRole) return null;
+  const isAdmin = userRole.name === "ADMIN";
 
   const { ...session } = userAndSession;
 
   const user = {
     role: userRole,
+    isAdmin,
     ...userAndSession.user,
   };
 

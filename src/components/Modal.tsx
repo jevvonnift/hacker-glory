@@ -20,29 +20,28 @@ const Modal = forwardRef<HTMLDivElement, Props>(
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none"
+              className="fixed inset-0 z-50 flex w-full items-center justify-center overflow-y-auto overflow-x-hidden outline-none focus:outline-none"
             >
-              <div className="relative mx-auto my-6 w-auto max-w-3xl">
-                <div className="relative flex w-full flex-col rounded-xl border-0 bg-white shadow-lg outline-none focus:outline-none">
-                  <div
-                    ref={ref}
-                    className={cn("relative flex-auto p-6", className)}
+              <div
+                ref={ref}
+                className={cn(
+                  "relative flex w-full max-w-md flex-auto flex-col rounded-xl border-0 bg-white p-6 shadow-lg outline-none focus:outline-none",
+                  className,
+                )}
+              >
+                {showCloseIcon && (
+                  <span
+                    className="absolute right-4 top-4 cursor-pointer"
+                    onClick={onClose}
                   >
-                    {showCloseIcon && (
-                      <span
-                        className="absolute right-4 top-4 cursor-pointer"
-                        onClick={onClose}
-                      >
-                        <XIcon
-                          strokeWidth={1.2}
-                          className="text-slate-500 transition-all hover:text-slate-600"
-                        />
-                      </span>
-                    )}
+                    <XIcon
+                      strokeWidth={1.2}
+                      className="text-slate-500 transition-all hover:text-slate-600"
+                    />
+                  </span>
+                )}
 
-                    {props.children}
-                  </div>
-                </div>
+                <div>{props.children}</div>
               </div>
             </motion.div>
 

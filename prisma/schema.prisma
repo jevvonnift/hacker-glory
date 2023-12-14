@@ -58,18 +58,30 @@ model Role {
     users User[]
 }
 
+enum AnnouncementSourceType {
+    IMAGE
+    VIDEO
+}
+
+enum AnnouncementPriority {
+    PENTING
+    BIASA
+}
+
 model Announcement {
     id String @id @default(cuid())
 
-    title    String
-    body     Json
-    priority Int
+    title      String
+    sourceURL  String
+    sourceType AnnouncementSourceType
+    body       String                 @db.Text
+    priority   AnnouncementPriority
 
     authorId String
     author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     savedBy  User[] @relation("savedAnnouncements")
 
-    categoryId String
+    categoryId Int
     category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     isAccepted Boolean
@@ -80,13 +92,14 @@ model Announcement {
     updatedAt   DateTime  @updatedAt
 
     comments Comment[]
+    visits   Visit[]
 
     @@index([authorId])
     @@index([categoryId])
 }
 
 model Category {
-    id   String @id @default(cuid())
+    id   Int    @id @default(autoincrement())
     name String
 
     announcements Announcement[]
@@ -118,5 +131,9 @@ model Visit {
     userId String
     user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+    announcementId String
+    announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
     @@index([userId])
+    @@index([announcementId])
 }
