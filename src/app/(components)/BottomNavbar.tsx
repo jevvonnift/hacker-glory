@@ -26,6 +26,7 @@ const BottomNavbar = () => {
         sourceType: "IMAGE",
         sourceURL: "",
         publishedAt: null,
+        isRequested: session.user.isAdmin,
       },
       {
         onSuccess: (data) => {

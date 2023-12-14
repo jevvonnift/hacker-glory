@@ -35,21 +35,21 @@ export async function POST(req: NextRequest) {
    * video/ , then will return
    * message with false success
    */
-  if (!file.type.startsWith("image/"))
+  if (!file.type.startsWith("image/") && !file.type.startsWith("video/"))
     return NextResponse.json({
-      message: "File harus gambar!",
+      message: "File harus gambar atau video!",
       success: false,
     });
 
   /**
    * Check file size
-   * If file size is more then 5MB
+   * If file size is more then 15Mb
    * then will return message with false success
    */
-  if (file.size > 655360)
-    // 5MB
+  if (file.size > 15728640)
+    // 15Mb
     return NextResponse.json({
-      message: "File terlalu besar, file maximal 2MB!",
+      message: "File terlalu besar, file maximal 15Mb!",
       success: false,
     });
 

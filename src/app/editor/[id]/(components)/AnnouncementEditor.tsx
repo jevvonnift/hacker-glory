@@ -1,15 +1,18 @@
 "use client";
 
-import ArticleEditor, { type EditorContent } from "./ArticleEditor";
 import Button from "~/components/Button";
-import { ArrowLeftIcon, CheckIcon, SaveIcon, XIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ArrowUpFromLineIcon,
+  SaveIcon,
+  XIcon,
+} from "lucide-react";
 import Modal from "~/components/Modal";
 import { useBoolean } from "usehooks-ts";
-import { useEffect, useState } from "react";
-import ContentFileDropzone, { type FileResult } from "./ContentFileDropzone";
+import { useMemo, useState } from "react";
+import ContentFileDropzone from "./SourceDropzone";
 import Image from "next/image";
-import useSession from "~/hooks/useSession";
-import { type AnnouncementPriority } from "@prisma/client";
+import { AnnouncementSourceType, AnnouncementPriority } from "@prisma/client";
 import { cn } from "~/lib/utils";
 import InputCalender from "~/components/InputCalender";
 import { AnimatePresence, motion } from "framer-motion";
@@ -19,78 +22,176 @@ import uploadFile from "~/server/lib/uploadFile";
 import { type RouterOutputs } from "~/trpc/shared";
 import Link from "next/link";
 
-type NonNullable<T> = Exclude<T, null | undefined>;
+import TextareaAutoSize from "react-textarea-autosize";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import dynamic from "next/dynamic";
+import useSession from "~/hooks/useSession";
 
 type Props = {
   announcement: NonNullable<RouterOutputs["announcement"]["getById"]>;
 };
 
-const AnnoucementEditor = ({ announcement }: Props) => {
-  const {
-    value: isOpenSaveModal,
-    setFalse: closeSaveModal,
-    setTrue: openSaveModal,
-  } = useBoolean();
+const AnnouncementFormSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+  sourceURL: z.string(),
+  sourceType: z.nativeEnum(AnnouncementSourceType),
+  publishedAt: z.date().nullable(),
+  priority: z.nativeEnum(AnnouncementPriority),
+  categoryId: z.number(),
+});
 
+type InferAnnouncementFormSchema = z.infer<typeof AnnouncementFormSchema>;
+
+const AnnoucementEditor = ({ announcement: annc }: Props) => {
+  const [announcement, setAnnouncement] = useState(annc);
   const { data: categories } = api.category.getCategories.useQuery(undefined, {
     refetchOnWindowFocus: false,
   });
-
-  const [contentFile, setMainContentFile] = useState<FileResult | null>(null);
-  const [titleAndBody, setTitleAndBody] = useState<EditorContent>({
-    title: announcement.title,
-    body: announcement.body,
-  });
-  const [priority, setPriority] = useState<AnnouncementPriority>(
-    announcement.priority,
-  );
-  const [publishDate, setPublishDate] = useState<Date | null>(
-    announcement.publishedAt,
-  );
-  const [categoryId, setCategoryId] = useState<number>(announcement.categoryId);
-
   const { session } = useSession();
 
-  const handleSubmit = async (saveType: "publish" | "request" | "draft") => {
-    if (!categoryId) return;
-    if (!contentFile)
-      return toast.error("Upload gambar atau video konten terlebih dahulu");
-    if (!titleAndBody)
-      return toast.error("Isi judul dan konten artikel kamu terlebih dahulu");
-    if (!titleAndBody.title || !titleAndBody.body)
-      return toast.error("Isi judul dan konten artikel kamu terlebih dahulu");
+  const { setValue, register, watch, handleSubmit, reset } =
+    useForm<InferAnnouncementFormSchema>({
+      resolver: zodResolver(AnnouncementFormSchema),
+      defaultValues: {
+        ...announcement,
+      },
+    });
 
-    const fileResult = await uploadFile(contentFile.file);
-    if (!fileResult.success) {
-      return toast.error(fileResult.message);
+  const BlockNoteEditor = useMemo(
+    () =>
+      dynamic(() => import("~/components/editor/BlockNoteEditor"), {
+        ssr: false,
+      }),
+    [],
+  );
+
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
+  const {
+    value: isSaveModalOpen,
+    setTrue: openSaveModal,
+    setFalse: closeSaveModal,
+  } = useBoolean();
+  const {
+    value: isPublishModalOpen,
+    setTrue: openPublishModal,
+    setFalse: closePublishModal,
+  } = useBoolean();
+
+  const [isUploading, setIsUploading] = useState(false);
+  const { mutate: saveAnnouncement } = api.announcement.save.useMutation();
+  const { mutate: publishAnnouncement } =
+    api.announcement.publish.useMutation();
+  const { mutate: requestAnnouncement } =
+    api.announcement.request.useMutation();
+
+  const handleSave: SubmitHandler<InferAnnouncementFormSchema> = async (
+    data,
+  ) => {
+    setIsUploading(true);
+
+    if (sourceFile) {
+      const result = await uploadFile(sourceFile);
+      if (!result.success) {
+        setIsUploading(false);
+        return toast.error(result.message);
+      }
+
+      setValue("sourceURL", result.url);
+      setSourceFile(null);
     }
 
-    // const sourceType = contentFile.type;
-    // const title = titleAndBody.title;
-    // const body = titleAndBody.body;
+    saveAnnouncement(
+      {
+        ...data,
+        id: announcement.id,
+        sourceURL: watch("sourceURL"),
+      },
+      {
+        onSuccess(data) {
+          reset(data);
+          setAnnouncement((annc) => ({ ...annc, ...data }));
+          toast.success("Pengumuman berhasil disimpan!");
+          setIsUploading(false);
+        },
+        onError(error) {
+          toast.error(error.message);
+          setIsUploading(false);
+        },
+      },
+    );
   };
 
-  useEffect(() => {
-    if (categories && !!categories[0]) setCategoryId(categories[0].id);
-  }, [categories]);
+  const handlePublish: SubmitHandler<InferAnnouncementFormSchema> = async (
+    data,
+  ) => {
+    setIsUploading(true);
+    publishAnnouncement(
+      {
+        ...data,
+        id: announcement.id,
+        sourceURL: watch("sourceURL"),
+      },
+      {
+        onSuccess(data) {
+          reset(data);
+          setAnnouncement((annc) => ({ ...annc, ...data }));
+          toast.success("Pengumuman berhasil di unggah!");
+          setIsUploading(false);
+        },
+        onError(error) {
+          setIsUploading(false);
+          if (error.data?.code !== "BAD_REQUEST") toast.error(error.message);
+
+          const fieldErrs = error.data?.zodError?.fieldErrors;
+          if (!fieldErrs) return;
+
+          Object.keys(fieldErrs).forEach((field: keyof typeof fieldErrs) => {
+            const fieldObj = fieldErrs[field];
+            if (fieldObj) {
+              const msg = fieldObj[0] ?? "";
+              toast.error(msg);
+            }
+          });
+        },
+      },
+    );
+  };
+
+  const handleRequest = (isDraft: boolean) => {
+    setIsUploading(true);
+    requestAnnouncement(
+      {
+        id: announcement.id,
+        isDraft: isDraft,
+      },
+      {
+        onSuccess(data) {
+          toast.success("Permintaan pengumuman berhasil dikirim!");
+          setAnnouncement((annc) => ({ ...annc, ...data }));
+          setIsUploading(false);
+        },
+        onError(error) {
+          toast.error(error.message);
+          setIsUploading(false);
+        },
+      },
+    );
+  };
 
   return (
     <>
       <div className="flex w-full flex-col items-center justify-center">
         <div className="justify-beetwen flex w-full max-w-5xl items-center justify-between gap-2">
           <Link href="/" shallow={true}>
-            <Button className="flex items-center gap-2 rounded-full px-4">
+            <Button className="flex items-center gap-2 rounded-full p-3 sm:px-4 sm:py-2">
               <ArrowLeftIcon strokeWidth={1.5} size={20} />
-              <span>Kembali</span>
+              <span className="hidden sm:inline">Kembali</span>
             </Button>
           </Link>
-          <div className="flex items-center gap-3">
-            <div>
-              <p className="flex gap-2">
-                <CheckIcon className="text-green-500" />
-                <span>Tersimpan di Draft</span>
-              </p>
-            </div>
+          <div className="flex items-center gap-2">
             <Button
               onClick={openSaveModal}
               className="text-md flex items-center gap-2 rounded-full px-4"
@@ -98,50 +199,92 @@ const AnnoucementEditor = ({ announcement }: Props) => {
               <SaveIcon strokeWidth={1.5} size={20} />
               <span>Simpan</span>
             </Button>
+
+            {session && (session.user.isAdmin || announcement.isAccepted) && (
+              <Button
+                className="text-md flex w-full items-center gap-2 rounded-full bg-blue-500 px-4 text-white hover:bg-blue-600 hover:disabled:bg-blue-500"
+                onClick={openPublishModal}
+              >
+                <ArrowUpFromLineIcon strokeWidth={2} size={20} />
+                <span>
+                  {announcement.publishedAt &&
+                  announcement.publishedAt < new Date()
+                    ? "Sudah di Unggah"
+                    : "Unggah"}
+                </span>
+              </Button>
+            )}
+
+            {session && !session.user.isAdmin && !announcement.isAccepted && (
+              <>
+                {announcement.isDraft ? (
+                  <Button
+                    onClick={() => handleRequest(false)}
+                    className="text-md flex w-full items-center gap-2 rounded-full bg-blue-500 px-4 text-white hover:bg-blue-600 hover:disabled:bg-blue-500"
+                    disabled={isUploading}
+                  >
+                    <ArrowUpFromLineIcon strokeWidth={2} size={20} />
+                    <span>
+                      {" "}
+                      <span className="hidden sm:inline">Minta</span>{" "}
+                      Persetujuan
+                    </span>
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleRequest(true)}
+                    className="text-md flex w-full items-center gap-2 rounded-full bg-red-500 px-4 text-white hover:bg-red-600 hover:disabled:bg-red-500"
+                    disabled={isUploading}
+                  >
+                    <XIcon strokeWidth={2} size={20} />
+                    <span>
+                      Batalkan{" "}
+                      <span className="hidden sm:inline">Permintaan</span>
+                    </span>
+                  </Button>
+                )}
+              </>
+            )}
           </div>
         </div>
 
         <div className="mt-4 w-full max-w-5xl rounded-xl bg-white p-6">
-          {!contentFile ? (
+          {!watch("sourceURL").length && (
             <ContentFileDropzone
-              onFileAccepted={setMainContentFile}
+              onFileAccepted={(result) => {
+                setValue("sourceURL", result.url);
+                setValue("sourceType", result.type);
+                setSourceFile(result.file);
+              }}
               className="flex h-20 w-full cursor-pointer items-center justify-center rounded-md bg-slate-100"
             />
-          ) : (
-            <div className="relative flex w-full items-center justify-center">
-              <span
-                onClick={() => setMainContentFile(null)}
-                className="absolute -right-2 -top-2 z-10 cursor-pointer rounded-full bg-red-500 p-1 text-white"
-              >
-                <XIcon strokeWidth={1} />
-              </span>
-              {contentFile.type === "IMAGE" && (
-                <Image
-                  src={contentFile.url}
-                  alt="Content Image"
-                  className="max-h-[500px] w-auto rounded-md"
-                  width={100}
-                  height={100}
-                />
-              )}
-              {contentFile.type === "VIDEO" && (
-                <video
-                  src={contentFile.url}
-                  controls
-                  className="aspect-video w-auto rounded-md"
-                />
-              )}
-            </div>
           )}
-          <ArticleEditor
-            onValueChange={setTitleAndBody}
-            value={titleAndBody}
-            className="mt-2"
+
+          {!!watch("sourceURL").length && (
+            <FilePreview
+              type={watch("sourceType")}
+              onRemove={() => {
+                setValue("sourceURL", "");
+                setSourceFile(null);
+              }}
+              url={watch("sourceURL")}
+            />
+          )}
+
+          <TextareaAutoSize
+            className="mt-5 w-full resize-none break-words border-b bg-transparent py-2 text-2xl font-bold text-[#3F3F3F] outline-none transition-all sm:text-3xl"
+            placeholder="Judul Pengumuman"
+            required={true}
+            {...register("title")}
+          />
+          <BlockNoteEditor
+            onChange={(value) => setValue("body", value)}
+            initialContent={watch("body")}
           />
         </div>
       </div>
 
-      <Modal isOpen={isOpenSaveModal} onClose={closeSaveModal}>
+      <Modal isOpen={isSaveModalOpen} onClose={closeSaveModal}>
         <h1 className="text-xl">Simpan Pengumuman</h1>
 
         <div className="mt-2 flex flex-col gap-4">
@@ -151,8 +294,10 @@ const AnnoucementEditor = ({ announcement }: Props) => {
                 Kategori
               </label>
               <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(parseInt(e.target.value))}
+                value={watch("categoryId")}
+                onChange={(e) =>
+                  setValue("categoryId", parseInt(e.target.value))
+                }
                 className="w-full rounded-md border p-2 focus:outline-none"
               >
                 {categories.map((category) => (
@@ -170,42 +315,59 @@ const AnnoucementEditor = ({ announcement }: Props) => {
               <Button
                 className={cn(
                   "flex-1 border-red-500 hover:bg-red-500/80 hover:text-white",
-                  priority === "PENTING" &&
+                  watch("priority") === "PENTING" &&
                     "bg-red-500 text-white hover:bg-red-500",
                 )}
-                onClick={() => setPriority("PENTING")}
+                onClick={() => setValue("priority", "PENTING")}
               >
                 Penting
               </Button>
               <Button
                 className={cn(
                   "flex-1 border-yellow-500 hover:bg-yellow-500/80 hover:text-white",
-                  priority === "BIASA" &&
+                  watch("priority") === "BIASA" &&
                     "bg-yellow-500 text-white hover:bg-yellow-500",
                 )}
-                onClick={() => setPriority("BIASA")}
+                onClick={() => setValue("priority", "BIASA")}
               >
                 Biasa
               </Button>
             </div>
           </div>
+        </div>
 
-          <div>
+        <div className="mt-4 flex flex-col gap-2">
+          <form onSubmit={handleSubmit(handleSave)}>
+            <Button
+              className="w-full rounded-full bg-blue-500 text-white hover:bg-blue-600 hover:disabled:bg-blue-500"
+              disabled={isUploading}
+            >
+              Simpan Perubahan
+            </Button>
+          </form>
+        </div>
+      </Modal>
+
+      {announcement.isAccepted && (
+        <Modal isOpen={isPublishModalOpen} onClose={closePublishModal}>
+          <h1 className="text-xl">Unggah Pengumuman</h1>
+
+          <div className="mt-2">
             <div className="mb-2 flex items-center gap-2 text-lg">
               <label htmlFor="publish-date text-lg">Atur Tanggal Unggah</label>
               <input
                 type="checkbox"
                 className="h-4 w-4 cursor-pointer"
-                checked={!!publishDate}
+                checked={!!watch("publishedAt")}
                 onChange={(e) =>
                   e.target.checked
-                    ? setPublishDate(new Date())
-                    : setPublishDate(null)
+                    ? setValue("publishedAt", new Date())
+                    : setValue("publishedAt", null)
                 }
               />
             </div>
             <AnimatePresence>
-              {!!publishDate && (
+              {!!watch("publishedAt") && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -214,8 +376,8 @@ const AnnoucementEditor = ({ announcement }: Props) => {
                 >
                   <InputCalender
                     showTimeSelect={true}
-                    onChange={(date) => setPublishDate(date)}
-                    selected={publishDate}
+                    onChange={(date) => setValue("publishedAt", date)}
+                    selected={watch("publishedAt")}
                     minDate={new Date()}
                     id="publish-date"
                   />
@@ -223,31 +385,63 @@ const AnnoucementEditor = ({ announcement }: Props) => {
               )}
             </AnimatePresence>
           </div>
-        </div>
 
-        <div className="mt-4 flex flex-col gap-2">
-          <Button className="w-full rounded-full">Simpan Draft</Button>
-
-          {session && session.user.role.name === "ADMIN" ? (
-            <>
-              {!publishDate && (
-                <Button
-                  className="w-full rounded-full bg-yellow-500 text-white hover:bg-yellow-600 hover:disabled:bg-yellow-500"
-                  onClick={() => handleSubmit("publish")}
-                >
-                  Unggah Sekarang
+          <div className="mt-4 flex flex-col gap-2">
+            <form onSubmit={handleSubmit(handlePublish)}>
+              {!watch("publishedAt") ? (
+                <Button className="text-md flex w-full items-center gap-2 rounded-full bg-blue-500 px-4 text-white hover:bg-blue-600 hover:disabled:bg-blue-500">
+                  <ArrowUpFromLineIcon strokeWidth={2} size={20} />
+                  <span>Unggah Sekarang</span>
+                </Button>
+              ) : (
+                <Button className="text-md flex w-full items-center gap-2 rounded-full px-4 ">
+                  <SaveIcon strokeWidth={2} size={20} />
+                  <span>Simpan Tanggal</span>
                 </Button>
               )}
-            </>
-          ) : (
-            <Button className="w-full rounded-full bg-blue-500 text-white hover:bg-blue-600 hover:disabled:bg-blue-500">
-              Minta Persetujuan Admin
-            </Button>
-          )}
-        </div>
-      </Modal>
+            </form>
+          </div>
+        </Modal>
+      )}
     </>
   );
 };
+
+function FilePreview({
+  type,
+  url,
+  onRemove,
+}: {
+  type: AnnouncementSourceType;
+  url: string;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="relative flex w-full items-center justify-center">
+      <span
+        onClick={onRemove}
+        className="absolute -right-2 -top-2 z-10 cursor-pointer rounded-full bg-red-500 p-1 text-white"
+      >
+        <XIcon strokeWidth={1} />
+      </span>
+      {type === "IMAGE" && (
+        <Image
+          src={url}
+          alt="Content Image"
+          className="max-h-[500px] w-auto rounded-md"
+          width={500}
+          height={500}
+        />
+      )}
+      {type === "VIDEO" && (
+        <video
+          src={url}
+          controls
+          className="aspect-video max-h-[400px] w-auto rounded-md"
+        />
+      )}
+    </div>
+  );
+}
 
 export default AnnoucementEditor;

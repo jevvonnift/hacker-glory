@@ -15,7 +15,7 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   onFileAccepted: (file: FileResult) => void;
 }
 
-const HeroContentDropzone = forwardRef<HTMLDivElement, Props>(
+const SourceDropzone = forwardRef<HTMLDivElement, Props>(
   ({ onFileAccepted, className, ...props }, ref) => {
     const onDropFile = async (
       acceptedFile: File[],
@@ -77,4 +77,4 @@ const HeroContentDropzone = forwardRef<HTMLDivElement, Props>(
   },
 );
 
-export default HeroContentDropzone;
+export default SourceDropzone;

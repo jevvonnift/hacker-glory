@@ -39,7 +39,7 @@ const UserDropdown = () => {
             onMouseLeave={() => setShowDropdown(false)}
           >
             <div className="flex w-[150px] flex-col gap-2">
-              {session && session.user.role.name === "ADMIN" && (
+              {session && session.user.isAdmin && (
                 <Link
                   className="flex gap-2 rounded-md px-4 py-2 text-center hover:bg-slate-100"
                   href="/dashboard"
