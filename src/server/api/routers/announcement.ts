@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "../trpc";
 import { AnnouncementPriority, AnnouncementSourceType } from "@prisma/client";
 
 export const announcementRouter = createTRPCRouter({
@@ -15,7 +20,6 @@ export const announcementRouter = createTRPCRouter({
         categoryId: z.number(),
         isAccepted: z.boolean(),
         isDraft: z.boolean(),
-        isRequested: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -50,6 +54,25 @@ export const announcementRouter = createTRPCRouter({
         },
       });
     }),
+  getPendingRequest: adminProcedure.query(async ({ ctx }) => {
+    return await ctx.db.announcement.findMany({
+      where: {
+        isDraft: false,
+        isAccepted: false,
+      },
+      take: 5,
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+          },
+        },
+        category: true,
+      },
+    });
+  }),
   save: protectedProcedure
     .input(
       z.object({
@@ -123,6 +146,27 @@ export const announcementRouter = createTRPCRouter({
         data: {
           isAccepted: false,
           isDraft: input.isDraft,
+          rejectedMessage: null,
+        },
+      });
+    }),
+  acceptOrReject: adminProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+        isAccepted: z.boolean(),
+        rejectedMessage: z.string().min(1).nullable(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.announcement.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          isAccepted: input.isAccepted,
+          rejectedMessage: input.rejectedMessage,
+          isDraft: input.isAccepted ? false : true,
         },
       });
     }),

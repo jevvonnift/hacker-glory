@@ -6,6 +6,7 @@ import useSession from "~/hooks/useSession";
 import Logo from "~/components/Logo";
 import UserDropdown from "~/components/user/UserDropdown";
 import { BookmarkIcon } from "lucide-react";
+import RequestAnnouncementDropdown from "~/components/announcement/RequestAnnouncementDropdown";
 
 const MainPageNavbar = () => {
   const { session } = useSession();
@@ -19,6 +20,7 @@ const MainPageNavbar = () => {
             <Button className="flex rounded-full p-3">
               <BookmarkIcon strokeWidth={1.2} />
             </Button>
+            {session.user.isAdmin && <RequestAnnouncementDropdown />}
             <UserDropdown />
           </div>
         ) : (

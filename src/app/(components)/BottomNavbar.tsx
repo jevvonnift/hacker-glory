@@ -18,7 +18,7 @@ const BottomNavbar = () => {
     createAnnouncement(
       {
         title: "Judul Pengumuman",
-        body: "[]",
+        body: DEFAULT_ANNOUNCEMENT_BODY,
         categoryId: 1,
         isAccepted: session.user.isAdmin,
         isDraft: true,
@@ -26,7 +26,6 @@ const BottomNavbar = () => {
         sourceType: "IMAGE",
         sourceURL: "",
         publishedAt: null,
-        isRequested: session.user.isAdmin,
       },
       {
         onSuccess: (data) => {

@@ -4,6 +4,7 @@ import Button from "~/components/Button";
 import {
   ArrowLeftIcon,
   ArrowUpFromLineIcon,
+  MessageSquareIcon,
   SaveIcon,
   XIcon,
 } from "lucide-react";
@@ -79,6 +80,11 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
     setTrue: openPublishModal,
     setFalse: closePublishModal,
   } = useBoolean();
+  const {
+    value: isOpenMessageModal,
+    setTrue: openMessageModal,
+    setFalse: closeMessageModal,
+  } = useBoolean();
 
   const [isUploading, setIsUploading] = useState(false);
   const { mutate: saveAnnouncement } = api.announcement.save.useMutation();
@@ -102,7 +108,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
       setValue("sourceURL", result.url);
       setSourceFile(null);
     }
-
+    console.log(data.body);
     saveAnnouncement(
       {
         ...data,
@@ -115,6 +121,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
           setAnnouncement((annc) => ({ ...annc, ...data }));
           toast.success("Pengumuman berhasil disimpan!");
           setIsUploading(false);
+          closeSaveModal();
         },
         onError(error) {
           toast.error(error.message);
@@ -194,11 +201,23 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
           <div className="flex items-center gap-2">
             <Button
               onClick={openSaveModal}
-              className="text-md flex items-center gap-2 rounded-full px-4"
+              className="text-md flex items-center gap-2 rounded-full p-3 sm:px-4 sm:py-2"
             >
               <SaveIcon strokeWidth={1.5} size={20} />
-              <span>Simpan</span>
+              <span className="hidden sm:inline">Simpan</span>
             </Button>
+
+            {announcement.rejectedMessage && (
+              <Button
+                className="relative flex rounded-full p-3"
+                onClick={openMessageModal}
+              >
+                <MessageSquareIcon strokeWidth={1.2} size={20} />
+                <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                  1
+                </span>
+              </Button>
+            )}
 
             {session && (session.user.isAdmin || announcement.isAccepted) && (
               <Button
@@ -279,7 +298,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
           />
           <BlockNoteEditor
             onChange={(value) => setValue("body", value)}
-            initialContent={watch("body")}
+            initialContent={annc.body}
           />
         </div>
       </div>
@@ -401,6 +420,16 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
               )}
             </form>
           </div>
+        </Modal>
+      )}
+
+      {announcement.rejectedMessage && (
+        <Modal isOpen={isOpenMessageModal} onClose={closeMessageModal}>
+          <h1 className="text-xl">Pesan Dari Admin</h1>
+
+          <h2 className="mt-4 text-lg italic">
+            "{announcement.rejectedMessage}"
+          </h2>
         </Modal>
       )}
     </>

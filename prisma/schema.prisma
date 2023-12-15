@@ -87,9 +87,10 @@ model Announcement {
     isAccepted Boolean
     isDraft    Boolean
 
-    publishedAt DateTime?
-    createdAt   DateTime
-    updatedAt   DateTime  @updatedAt
+    rejectedMessage String?
+    publishedAt     DateTime?
+    createdAt       DateTime
+    updatedAt       DateTime  @updatedAt
 
     comments Comment[]
     visits   Visit[]
