@@ -16,6 +16,7 @@ import Input from "~/components/Input";
 import { useBoolean } from "usehooks-ts";
 import toast from "react-hot-toast";
 import AnnouncementPriorityBadge from "~/components/announcement/AnnouncementPriorityBadge";
+import { useRouter } from "next/navigation";
 
 type Props = {
   announcement: NonNullable<RouterOutputs["announcement"]["getById"]>;
@@ -39,6 +40,8 @@ const AnnouncementPreview = ({ announcement }: Props) => {
   const { mutate: acceptOrReject, isLoading } =
     api.announcement.acceptOrReject.useMutation();
 
+  const router = useRouter();
+
   const handleAcceptOrReject = (isAccepted: boolean) => {
     if (!isAccepted && rejectedMessage === "")
       return toast.error("Alasan harus diisi!");
@@ -55,7 +58,7 @@ const AnnouncementPreview = ({ announcement }: Props) => {
           );
           closeModal();
           setRejectedMessage("");
-          window.location.href = "/";
+          router.push("/");
         },
         onError: () => {
           toast.error("Pengumuman berhasil di setujui!");

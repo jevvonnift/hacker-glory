@@ -6,6 +6,7 @@ import {
   ArrowUpFromLineIcon,
   MessageSquareIcon,
   SaveIcon,
+  TrashIcon,
   XIcon,
 } from "lucide-react";
 import Modal from "~/components/Modal";
@@ -21,7 +22,6 @@ import toast from "react-hot-toast";
 import { api } from "~/trpc/react";
 import uploadFile from "~/server/lib/uploadFile";
 import { type RouterOutputs } from "~/trpc/shared";
-import Link from "next/link";
 
 import TextareaAutoSize from "react-textarea-autosize";
 import { type SubmitHandler, useForm } from "react-hook-form";
@@ -29,6 +29,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import dynamic from "next/dynamic";
 import useSession from "~/hooks/useSession";
+import { useRouter } from "next/navigation";
 
 type Props = {
   announcement: NonNullable<RouterOutputs["announcement"]["getById"]>;
@@ -86,12 +87,15 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
     setFalse: closeMessageModal,
   } = useBoolean();
 
+  const router = useRouter();
+
   const [isUploading, setIsUploading] = useState(false);
   const { mutate: saveAnnouncement } = api.announcement.save.useMutation();
   const { mutate: publishAnnouncement } =
     api.announcement.publish.useMutation();
   const { mutate: requestAnnouncement } =
     api.announcement.request.useMutation();
+  const { mutate: deleteAnnouncement } = api.announcement.delete.useMutation();
 
   const handleSave: SubmitHandler<InferAnnouncementFormSchema> = async (
     data,
@@ -188,17 +192,47 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
     );
   };
 
+  const handleDelete = () => {
+    setIsUploading(true);
+    deleteAnnouncement(
+      {
+        id: announcement.id,
+      },
+      {
+        onSuccess() {
+          toast.success("Berhasil menghapus pengumuman!");
+          router.replace("/");
+          setIsUploading(false);
+        },
+        onError(error) {
+          toast.error(error.message);
+          setIsUploading(false);
+        },
+      },
+    );
+  };
+
   return (
     <>
       <div className="flex w-full flex-col items-center justify-center">
         <div className="justify-beetwen flex w-full max-w-5xl items-center justify-between gap-2">
-          <Link href="/" shallow={true}>
-            <Button className="flex items-center gap-2 rounded-full p-3 sm:px-4 sm:py-2">
-              <ArrowLeftIcon strokeWidth={1.5} size={20} />
-              <span className="hidden sm:inline">Kembali</span>
-            </Button>
-          </Link>
+          <Button
+            className="flex items-center gap-2 rounded-full p-3 sm:px-4 sm:py-2"
+            onClick={() => router.back()}
+          >
+            <ArrowLeftIcon strokeWidth={1.5} size={20} />
+            <span className="hidden sm:inline">Kembali</span>
+          </Button>
+
           <div className="flex items-center gap-2">
+            <Button
+              className="text-md flex items-center gap-2 rounded-full bg-red-500 p-3 text-white hover:bg-red-600 hover:disabled:bg-red-500"
+              onClick={handleDelete}
+              disabled={isUploading}
+            >
+              <TrashIcon strokeWidth={1.5} size={20} />
+            </Button>
+
             <Button
               onClick={openSaveModal}
               className="text-md flex items-center gap-2 rounded-full p-3 sm:px-4 sm:py-2"
@@ -405,15 +439,15 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
             </AnimatePresence>
           </div>
 
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-4 flex justify-end gap-2">
             <form onSubmit={handleSubmit(handlePublish)}>
               {!watch("publishedAt") ? (
-                <Button className="text-md flex w-full items-center gap-2 rounded-full bg-blue-500 px-4 text-white hover:bg-blue-600 hover:disabled:bg-blue-500">
+                <Button className="text-md flex items-center gap-2 rounded-full bg-blue-500 px-4 text-white hover:bg-blue-600 hover:disabled:bg-blue-500">
                   <ArrowUpFromLineIcon strokeWidth={2} size={20} />
                   <span>Unggah Sekarang</span>
                 </Button>
               ) : (
-                <Button className="text-md flex w-full items-center gap-2 rounded-full px-4 ">
+                <Button className="text-md flex items-center gap-2 rounded-full bg-yellow-500 px-4  text-white hover:bg-yellow-600 hover:disabled:bg-yellow-500 ">
                   <SaveIcon strokeWidth={2} size={20} />
                   <span>Simpan Tanggal</span>
                 </Button>

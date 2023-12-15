@@ -73,6 +73,86 @@ export const announcementRouter = createTRPCRouter({
       },
     });
   }),
+  getAllAnnouncements: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.announcement.findMany({
+      where: {
+        publishedAt: {
+          lt: new Date(),
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+          },
+        },
+        category: true,
+        _count: {
+          select: {
+            comments: true,
+            savedBy: true,
+            visits: true,
+          },
+        },
+      },
+    });
+  }),
+  getMyAnnouncements: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.announcement.findMany({
+      where: {
+        authorId: ctx.session.user.id,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+          },
+        },
+        category: true,
+        _count: {
+          select: {
+            comments: true,
+            savedBy: true,
+            visits: true,
+          },
+        },
+      },
+    });
+  }),
+  getDetailAnnouncement: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.announcement.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+            },
+          },
+          category: true,
+          _count: {
+            select: {
+              comments: true,
+              savedBy: true,
+              visits: true,
+            },
+          },
+        },
+      });
+    }),
   save: protectedProcedure
     .input(
       z.object({
@@ -94,6 +174,21 @@ export const announcementRouter = createTRPCRouter({
         },
         data: {
           ...input,
+          publishedAt: null,
+        },
+      });
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.announcement.delete({
+        where: {
+          id: input.id,
+          authorId: ctx.session.user.id,
         },
       });
     }),
