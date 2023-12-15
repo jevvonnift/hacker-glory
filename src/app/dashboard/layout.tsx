@@ -10,7 +10,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     redirect("/");
   }
 
-  if (session.user.role.name !== "ADMIN") {
+  if (session.user.isAdmin) {
     redirect("/");
   }
 

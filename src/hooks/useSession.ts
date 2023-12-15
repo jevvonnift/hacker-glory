@@ -19,10 +19,13 @@ const useSession = () => {
     if (token) {
       setEnableFetch(true);
     }
+  }, []);
 
+  useEffect(() => {
     if (isError) {
       Cookies.remove("token");
       setEnableFetch(false);
+      window.location.reload();
     }
   }, [isError]);
 
