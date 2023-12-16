@@ -12,7 +12,7 @@ const AnnouncementPriorityBadge = forwardRef<HTMLSpanElement, Props>(
       <span
         ref={ref}
         className={cn(
-          "rounded-full px-4 py-2 text-white",
+          "rounded-full px-4 py-2 text-sm text-white",
           priority === "BIASA" ? "bg-yellow-500" : "bg-red-500",
           className,
         )}

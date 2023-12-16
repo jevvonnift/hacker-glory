@@ -73,6 +73,181 @@ export const announcementRouter = createTRPCRouter({
       },
     });
   }),
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.db.announcement.findMany({
+      where: {
+        publishedAt: {
+          lt: new Date(),
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+          },
+        },
+        savedBy: ctx.session
+          ? {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+              },
+              cursor: {
+                id: ctx.session.user.id,
+              },
+            }
+          : undefined,
+        category: true,
+        _count: {
+          select: {
+            comments: true,
+            savedBy: true,
+            visits: true,
+          },
+        },
+      },
+    });
+  }),
+  getSaved: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.announcement.findMany({
+      where: {
+        publishedAt: {
+          lt: new Date(),
+        },
+        savedBy: {
+          some: {
+            id: ctx.session.user.id,
+          },
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+          },
+        },
+        savedBy: ctx.session
+          ? {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+              },
+              cursor: {
+                id: ctx.session.user.id,
+              },
+            }
+          : undefined,
+        category: true,
+        _count: {
+          select: {
+            comments: true,
+            savedBy: true,
+            visits: true,
+          },
+        },
+      },
+    });
+  }),
+  getMine: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.announcement.findMany({
+      where: {
+        authorId: ctx.session.user.id,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+          },
+        },
+        category: true,
+        _count: {
+          select: {
+            comments: true,
+            savedBy: true,
+            visits: true,
+          },
+        },
+      },
+    });
+  }),
+  getDetailAnnouncement: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.announcement.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+            },
+          },
+          category: true,
+          savedBy: ctx.session
+            ? {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                },
+                cursor: {
+                  id: ctx.session.user.id,
+                },
+              }
+            : undefined,
+          _count: {
+            select: {
+              comments: true,
+              savedBy: true,
+              visits: true,
+            },
+          },
+        },
+      });
+    }),
+  bookmark: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+        bookmark: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.announcement.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          savedBy: {
+            connect: input.bookmark
+              ? {
+                  id: ctx.session.user.id,
+                }
+              : undefined,
+            disconnect: !input.bookmark
+              ? {
+                  id: ctx.session.user.id,
+                }
+              : undefined,
+          },
+        },
+      });
+    }),
   save: protectedProcedure
     .input(
       z.object({
@@ -94,6 +269,21 @@ export const announcementRouter = createTRPCRouter({
         },
         data: {
           ...input,
+          publishedAt: null,
+        },
+      });
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.announcement.delete({
+        where: {
+          id: input.id,
+          authorId: ctx.session.user.id,
         },
       });
     }),

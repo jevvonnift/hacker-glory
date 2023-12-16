@@ -5,15 +5,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { api } from "~/trpc/react";
 import Avatar from "../Avatar";
 import AnnouncementPriorityBadge from "./AnnouncementPriorityBadge";
+import { useRouter } from "next/navigation";
 
 const RequestAnnouncementDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { data: announcemets } = api.announcement.getPendingRequest.useQuery();
+  const router = useRouter();
 
   return (
     <div className="relative">
       <Button
-        className="relative flex rounded-full p-3"
+        className="relative flex rounded-full p-2"
         onClick={() => setShowDropdown((s) => !s)}
       >
         <BellIcon strokeWidth={1.2} />
@@ -35,34 +37,42 @@ const RequestAnnouncementDropdown = () => {
             onMouseLeave={() => setShowDropdown(false)}
           >
             <div className="flex w-[300px] flex-col gap-2">
-              {announcemets?.map((announcement) => (
-                <div
-                  className="cursor-pointer rounded-md p-2 transition-all hover:bg-slate-100"
-                  onClick={() =>
-                    (window.location.href = `/editor/preview/${announcement.id}`)
-                  }
-                >
-                  <div className="flex justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Avatar
-                        alt="User Profile Picture"
-                        className="h-8 w-8"
-                        src={announcement.author.image}
+              {announcemets &&
+                announcemets.map((announcement) => (
+                  <div
+                    className="cursor-pointer rounded-md p-2 transition-all hover:bg-slate-100"
+                    onClick={() =>
+                      router.push(`/editor/preview/${announcement.id}`)
+                    }
+                  >
+                    <div className="flex justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          alt="User Profile Picture"
+                          className="h-8 w-8"
+                          src={announcement.author.image}
+                        />
+
+                        <span>{announcement.author.username}</span>
+                      </div>
+                      <AnnouncementPriorityBadge
+                        priority={announcement.priority}
+                        className="flex items-center justify-center p-1 px-3 text-xs"
                       />
-
-                      <span>{announcement.author.username}</span>
                     </div>
-                    <AnnouncementPriorityBadge
-                      priority={announcement.priority}
-                      className="flex items-center justify-center p-1 px-3 text-xs"
-                    />
-                  </div>
 
-                  <div className="mt-2 line-clamp-1 font-semibold text-[#3F3F3F]">
-                    {announcement.title}
+                    <div className="mt-2 line-clamp-1 font-semibold text-[#3F3F3F]">
+                      {announcement.title}
+                    </div>
                   </div>
+                ))}
+              {announcemets && !announcemets.length && (
+                <div className="flex w-full justify-center">
+                  <p className="text-gray-500">
+                    Belum ada permintaan persetujuan.
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </motion.div>
         )}
