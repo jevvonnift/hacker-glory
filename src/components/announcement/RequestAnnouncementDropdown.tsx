@@ -61,9 +61,9 @@ const RequestAnnouncementDropdown = () => {
                       />
                     </div>
 
-                    <div className="mt-2 line-clamp-1 font-medium text-[#3F3F3F]">
+                    <p className="mt-2 line-clamp-2 text-[#3F3F3F]">
                       {announcement.title}
-                    </div>
+                    </p>
                   </div>
                 ))}
               {announcemets && !announcemets.length && (

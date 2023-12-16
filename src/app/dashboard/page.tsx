@@ -9,6 +9,7 @@ const DashboardPage = () => {
   const { data: mostVisited } = api.statistic.getMostVisited.useQuery();
   const { data: mostSaved } = api.statistic.getMostSaved.useQuery();
   const { data: mostCommented } = api.statistic.getMostCommented.useQuery();
+  const {} = api.statistic.getVisitedInWeek.useQuery();
 
   return (
     <div>

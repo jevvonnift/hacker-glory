@@ -31,8 +31,8 @@ const MostVisitedTable = ({
           <TableRow>
             <TableHead className="max-w-[200px]">Judul</TableHead>
             <TableHead>Penulis</TableHead>
-            <TableHead>Total Pengunjung</TableHead>
-            <TableHead>Pengunjung Unik</TableHead>
+            <TableHead>Total Kunjungan</TableHead>
+            <TableHead>Kunjungan Unik</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
