@@ -17,6 +17,7 @@ export const authRouter = createTRPCRouter({
         username: z
           .string()
           .min(6)
+          .max(10)
           .refine((s) => !s.includes(" "), "No Spaces!"),
         identityId: z.string().min(1),
         identityType: z.nativeEnum(UserIdentityType),

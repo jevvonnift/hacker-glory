@@ -82,7 +82,7 @@ const DashboardSidebar = () => {
   return (
     <div>
       <Button
-        className="mt-3 block rounded-full p-2 sm:hidden"
+        className="mt-3 block rounded-full p-2 md:hidden"
         onClick={toggleDropdown}
       >
         <MenuIcon strokeWidth={1.2} />
@@ -90,12 +90,12 @@ const DashboardSidebar = () => {
 
       <nav
         className={cn(
-          "absolute top-0 z-30 mt-2 w-[300px] -translate-x-[316px] rounded-xl rounded-t-xl border bg-white py-4 transition-all sm:sticky sm:top-2 sm:mt-0 sm:translate-x-0",
+          "absolute top-0 z-30 mt-2 w-[300px] -translate-x-[316px] rounded-xl rounded-t-xl border bg-white py-4 transition-all md:sticky md:top-2 md:mt-0 md:translate-x-0",
           isDropdownOpen && "translate-x-0",
         )}
       >
         <Button
-          className="absolute right-2 top-0 mt-3 block rounded-full p-2 sm:hidden"
+          className="absolute right-2 top-0 mt-3 block rounded-full p-2 md:hidden"
           onClick={toggleDropdown}
         >
           <MenuIcon strokeWidth={1.2} />

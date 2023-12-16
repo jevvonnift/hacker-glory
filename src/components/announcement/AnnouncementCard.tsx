@@ -39,7 +39,10 @@ const AnnouncementCard = forwardRef<HTMLDivElement, Props>(
             </div>
             <div className="flex gap-2">
               {announcement.priority === "PENTING" && (
-                <AnnouncementPriorityBadge priority={announcement.priority} />
+                <AnnouncementPriorityBadge
+                  priority={announcement.priority}
+                  className="py-2 text-sm"
+                />
               )}
               {!!announcement.savedBy?.length && (
                 <div className="rounded-full bg-yellow-500 p-2 text-white">

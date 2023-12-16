@@ -9,11 +9,7 @@ import { cn } from "~/lib/utils";
 const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
     <div className="relative w-full overflow-auto">
-      <table
-        ref={ref}
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
+      <table ref={ref} className={cn("w-full text-sm", className)} {...props} />
     </div>
   ),
 );
@@ -42,10 +38,7 @@ const TableRow = forwardRef<
 >(({ className, ...props }, ref) => (
   <tr
     ref={ref}
-    className={cn(
-      "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
-      className,
-    )}
+    className={cn("border-b hover:bg-slate-300/50", className)}
     {...props}
   />
 ));
@@ -56,10 +49,7 @@ const TableHead = forwardRef<
 >(({ className, ...props }, ref) => (
   <th
     ref={ref}
-    className={cn(
-      "text-muted-foreground h-12 px-4 text-left align-middle font-medium",
-      className,
-    )}
+    className={cn("h-12 px-4 text-left align-middle font-medium", className)}
     {...props}
   />
 ));
