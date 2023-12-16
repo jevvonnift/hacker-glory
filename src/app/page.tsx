@@ -18,7 +18,11 @@ const HomePage = () => {
   const orderBy = params.get("orderBy");
   const router = useRouter();
 
-  const { data: announcements, isLoading } = api.announcement.getAll.useQuery({
+  const {
+    data: announcements,
+    isLoading,
+    isInitialLoading,
+  } = api.announcement.getAll.useQuery({
     filter: orderBy
       ? {
           orderBy:
@@ -61,7 +65,7 @@ const HomePage = () => {
           </select>
         </motion.div>
 
-        {isLoading && (
+        {isInitialLoading && (
           <div className="mt-4 flex w-full justify-center">
             <Loader2Icon className="animate-spin" size={30} />
           </div>
@@ -82,10 +86,12 @@ const HomePage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
+              layout
               className="mt-4 w-full space-y-4 sm:columns-2 lg:columns-3"
             >
               {announcements.map((announcement, idx) => (
                 <motion.div
+                  layout
                   key={announcement.id}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}

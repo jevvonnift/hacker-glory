@@ -121,13 +121,7 @@ export const announcementRouter = createTRPCRouter({
         },
         orderBy: {
           publishedAt: {
-            sort: input.filter
-              ? input.filter.orderBy
-                ? input.filter.orderBy === "latest"
-                  ? "desc"
-                  : "asc"
-                : "desc"
-              : "desc",
+            sort: input.filter?.orderBy === "oldest" ? "asc" : "desc",
           },
         },
       });
