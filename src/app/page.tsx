@@ -6,24 +6,60 @@ import AnnouncementCard from "~/components/announcement/AnnouncementCard";
 import { api } from "~/trpc/react";
 import MainPageNavbar from "./(components)/Navbar";
 import BottomNavbar from "./(components)/BottomNavbar";
+import { useRouter, useSearchParams } from "next/navigation";
+
+enum OrderByParamType {
+  latest = "latest",
+  oldest = "oldest",
+}
 
 const HomePage = () => {
-  const { data: announcements, isLoading } = api.announcement.getAll.useQuery();
+  const params = useSearchParams();
+  const orderBy = params.get("orderBy");
+  const router = useRouter();
+
+  const { data: announcements, isLoading } = api.announcement.getAll.useQuery({
+    filter: orderBy
+      ? {
+          orderBy:
+            orderBy in OrderByParamType
+              ? (orderBy as OrderByParamType)
+              : undefined,
+        }
+      : undefined,
+  });
+
+  const handleOrderByChange = (orderBy: OrderByParamType) => {
+    router.replace(`/?orderBy=${orderBy}`);
+  };
 
   return (
     <div>
       <MainPageNavbar />
 
       <div className="mt-4">
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="text-center text-3xl font-semibold"
+          className="flex justify-between"
         >
-          Pengumuman Saat Ini
-        </motion.h1>
+          <h1 className="text-3xl font-semibold">Pengumuman Saat Ini</h1>
+          <select
+            onChange={(e) =>
+              handleOrderByChange(e.target.value as OrderByParamType)
+            }
+            className="rounded-md border px-4 py-2 focus-visible:outline-none"
+          >
+            <option value="latest" selected={!orderBy || orderBy === "latest"}>
+              Terbaru
+            </option>
+            <option value="oldest" selected={orderBy === "oldest"}>
+              Terlama
+            </option>
+          </select>
+        </motion.div>
 
         {isLoading && (
           <div className="mt-4 flex w-full justify-center">
