@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { unlink } from "fs/promises";
 import { join } from "path";
 import { UserIdentityType } from "@prisma/client";
@@ -144,4 +144,37 @@ export const userRouter = createTRPCRouter({
         message: "Profil berhasil di update",
       };
     }),
+  updateRole: adminProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+        roleId: z.number(),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.db.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          roleId: input.roleId,
+        },
+      });
+    }),
+  getAll: adminProcedure.query(({ ctx }) => {
+    return ctx.db.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        image: true,
+        roles: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+  }),
 });

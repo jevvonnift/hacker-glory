@@ -13,7 +13,7 @@ const RequestAnnouncementDropdown = () => {
   const router = useRouter();
 
   return (
-    <div className="relative">
+    <div>
       <Button
         className="relative flex rounded-full p-2"
         onClick={() => setShowDropdown((s) => !s)}
