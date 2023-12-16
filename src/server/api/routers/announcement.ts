@@ -109,6 +109,11 @@ export const announcementRouter = createTRPCRouter({
           },
         },
       },
+      orderBy: {
+        publishedAt: {
+          sort: "desc",
+        },
+      },
     });
   }),
   getSaved: protectedProcedure.query(async ({ ctx }) => {

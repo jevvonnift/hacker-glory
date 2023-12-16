@@ -47,8 +47,16 @@ const AnnouncementFormSchema = z.object({
 
 type InferAnnouncementFormSchema = z.infer<typeof AnnouncementFormSchema>;
 
-const AnnoucementEditor = ({ announcement: annc }: Props) => {
-  const [announcement, setAnnouncement] = useState(annc);
+const AnnoucementEditor = ({ announcement: initialAnnouncement }: Props) => {
+  const { data: announcement, refetch: refetchAnnouncement } =
+    api.announcement.getById.useQuery(
+      {
+        id: initialAnnouncement.id,
+      },
+      {
+        initialData: initialAnnouncement,
+      },
+    );
   const { data: categories } = api.category.getCategories.useQuery(undefined, {
     refetchOnWindowFocus: false,
   });
@@ -58,7 +66,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
     useForm<InferAnnouncementFormSchema>({
       resolver: zodResolver(AnnouncementFormSchema),
       defaultValues: {
-        ...announcement,
+        ...initialAnnouncement,
       },
     });
 
@@ -100,6 +108,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
   const handleSave: SubmitHandler<InferAnnouncementFormSchema> = async (
     data,
   ) => {
+    if (!announcement) return;
     setIsUploading(true);
 
     if (sourceFile) {
@@ -112,7 +121,6 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
       setValue("sourceURL", result.url);
       setSourceFile(null);
     }
-    console.log(data.body);
     saveAnnouncement(
       {
         ...data,
@@ -120,12 +128,12 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
         sourceURL: watch("sourceURL"),
       },
       {
-        onSuccess(data) {
+        async onSuccess(data) {
           reset(data);
-          setAnnouncement((annc) => ({ ...annc, ...data }));
           toast.success("Pengumuman berhasil disimpan!");
           setIsUploading(false);
           closeSaveModal();
+          await refetchAnnouncement();
         },
         onError(error) {
           toast.error(error.message);
@@ -138,6 +146,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
   const handlePublish: SubmitHandler<InferAnnouncementFormSchema> = async (
     data,
   ) => {
+    if (!announcement) return;
     setIsUploading(true);
     publishAnnouncement(
       {
@@ -146,11 +155,11 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
         sourceURL: watch("sourceURL"),
       },
       {
-        onSuccess(data) {
+        async onSuccess(data) {
           reset(data);
-          setAnnouncement((annc) => ({ ...annc, ...data }));
           toast.success("Pengumuman berhasil di unggah!");
           setIsUploading(false);
+          await refetchAnnouncement();
         },
         onError(error) {
           setIsUploading(false);
@@ -171,7 +180,13 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
     );
   };
 
-  const handleRequest = (isDraft: boolean) => {
+  const handleRequest = async (
+    data: InferAnnouncementFormSchema,
+    isDraft: boolean,
+  ) => {
+    if (!announcement) return;
+    if (!isDraft) await handleSave(data);
+
     setIsUploading(true);
     requestAnnouncement(
       {
@@ -179,10 +194,14 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
         isDraft: isDraft,
       },
       {
-        onSuccess(data) {
-          toast.success("Permintaan pengumuman berhasil dikirim!");
-          setAnnouncement((annc) => ({ ...annc, ...data }));
+        async onSuccess() {
+          toast.success(
+            !isDraft
+              ? "Permintaan pengumuman berhasil dikirim!"
+              : "Permintaan pengumuman berhasil dibatalkan!",
+          );
           setIsUploading(false);
+          await refetchAnnouncement();
         },
         onError(error) {
           toast.error(error.message);
@@ -193,6 +212,8 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
   };
 
   const handleDelete = () => {
+    if (!announcement) return;
+
     setIsUploading(true);
     deleteAnnouncement(
       {
@@ -212,7 +233,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
     );
   };
 
-  return (
+  return announcement ? (
     <>
       <div className="flex w-full flex-col items-center justify-center">
         <div className="justify-beetwen flex w-full max-w-5xl items-center justify-between gap-2">
@@ -236,6 +257,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
             <Button
               onClick={openSaveModal}
               className="text-md flex items-center gap-2 rounded-full p-2 sm:px-4 sm:py-2"
+              disabled={isUploading}
             >
               <SaveIcon strokeWidth={1.5} size={20} />
               <span className="hidden sm:inline">Simpan</span>
@@ -271,30 +293,32 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
             {session && !session.user.isAdmin && !announcement.isAccepted && (
               <>
                 {announcement.isDraft ? (
-                  <Button
-                    onClick={() => handleRequest(false)}
-                    className="text-md flex w-full items-center gap-2 rounded-full bg-blue-500 px-4 text-white hover:bg-blue-600 hover:disabled:bg-blue-500"
-                    disabled={isUploading}
-                  >
-                    <ArrowUpFromLineIcon strokeWidth={2} size={20} />
-                    <span>
-                      {" "}
-                      <span className="hidden sm:inline">Minta</span>{" "}
-                      Persetujuan
-                    </span>
-                  </Button>
+                  <form onSubmit={handleSubmit((d) => handleRequest(d, false))}>
+                    <Button
+                      className="text-md flex w-full items-center gap-2 rounded-full bg-blue-500 px-4 text-white hover:bg-blue-600 hover:disabled:bg-blue-500"
+                      disabled={isUploading}
+                    >
+                      <ArrowUpFromLineIcon strokeWidth={2} size={20} />
+                      <span>
+                        {" "}
+                        <span className="hidden sm:inline">Minta</span>{" "}
+                        Persetujuan
+                      </span>
+                    </Button>
+                  </form>
                 ) : (
-                  <Button
-                    onClick={() => handleRequest(true)}
-                    className="text-md flex w-full items-center gap-2 rounded-full bg-red-500 px-4 text-white hover:bg-red-600 hover:disabled:bg-red-500"
-                    disabled={isUploading}
-                  >
-                    <XIcon strokeWidth={2} size={20} />
-                    <span>
-                      Batalkan{" "}
-                      <span className="hidden sm:inline">Permintaan</span>
-                    </span>
-                  </Button>
+                  <form onSubmit={handleSubmit((d) => handleRequest(d, true))}>
+                    <Button
+                      className="text-md flex w-full items-center gap-2 rounded-full bg-red-500 px-4 text-white hover:bg-red-600 hover:disabled:bg-red-500"
+                      disabled={isUploading}
+                    >
+                      <XIcon strokeWidth={2} size={20} />
+                      <span>
+                        Batalkan{" "}
+                        <span className="hidden sm:inline">Permintaan</span>
+                      </span>
+                    </Button>
+                  </form>
                 )}
               </>
             )}
@@ -332,7 +356,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
           />
           <BlockNoteEditor
             onChange={(value) => setValue("body", value)}
-            initialContent={annc.body}
+            initialContent={initialAnnouncement.body}
           />
         </div>
       </div>
@@ -467,7 +491,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
         </Modal>
       )}
     </>
-  );
+  ) : null;
 };
 
 function FilePreview({
