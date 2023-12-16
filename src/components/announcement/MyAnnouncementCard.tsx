@@ -10,7 +10,7 @@ import Avatar from "../Avatar";
 import Link from "next/link";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  announcement: RouterOutputs["announcement"]["getMyAnnouncements"][number];
+  announcement: RouterOutputs["announcement"]["getMine"][number];
 }
 
 const MyAnnouncementCard = forwardRef<HTMLDivElement, Props>(

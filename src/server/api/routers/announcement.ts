@@ -73,7 +73,7 @@ export const announcementRouter = createTRPCRouter({
       },
     });
   }),
-  getAllAnnouncements: publicProcedure.query(async ({ ctx }) => {
+  getAll: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.announcement.findMany({
       where: {
         publishedAt: {
@@ -90,6 +90,11 @@ export const announcementRouter = createTRPCRouter({
         },
         savedBy: ctx.session
           ? {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+              },
               cursor: {
                 id: ctx.session.user.id,
               },
@@ -106,7 +111,7 @@ export const announcementRouter = createTRPCRouter({
       },
     });
   }),
-  getMySavedAnnouncements: protectedProcedure.query(async ({ ctx }) => {
+  getSaved: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.announcement.findMany({
       where: {
         publishedAt: {
@@ -126,11 +131,18 @@ export const announcementRouter = createTRPCRouter({
             image: true,
           },
         },
-        savedBy: {
-          cursor: {
-            id: ctx.session.user.id,
-          },
-        },
+        savedBy: ctx.session
+          ? {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+              },
+              cursor: {
+                id: ctx.session.user.id,
+              },
+            }
+          : undefined,
         category: true,
         _count: {
           select: {
@@ -142,7 +154,7 @@ export const announcementRouter = createTRPCRouter({
       },
     });
   }),
-  getMyAnnouncements: protectedProcedure.query(async ({ ctx }) => {
+  getMine: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.announcement.findMany({
       where: {
         authorId: ctx.session.user.id,
@@ -188,6 +200,11 @@ export const announcementRouter = createTRPCRouter({
           category: true,
           savedBy: ctx.session
             ? {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                },
                 cursor: {
                   id: ctx.session.user.id,
                 },
@@ -203,7 +220,7 @@ export const announcementRouter = createTRPCRouter({
         },
       });
     }),
-  bookmarkAnnouncement: protectedProcedure
+  bookmark: protectedProcedure
     .input(
       z.object({
         id: z.string().min(1),

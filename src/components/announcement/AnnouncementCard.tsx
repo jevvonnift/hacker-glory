@@ -11,7 +11,7 @@ import AnnouncementPriorityBadge from "./AnnouncementPriorityBadge";
 import { BookmarkIcon } from "lucide-react";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
-  announcement: RouterOutputs["announcement"]["getAllAnnouncements"][number];
+  announcement: RouterOutputs["announcement"]["getAll"][number];
 }
 
 const AnnouncementCard = forwardRef<HTMLDivElement, Props>(

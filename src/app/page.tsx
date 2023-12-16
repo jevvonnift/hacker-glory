@@ -8,8 +8,7 @@ import MainPageNavbar from "./(components)/Navbar";
 import BottomNavbar from "./(components)/BottomNavbar";
 
 const HomePage = () => {
-  const { data: announcements, isLoading } =
-    api.announcement.getAllAnnouncements.useQuery();
+  const { data: announcements, isLoading } = api.announcement.getAll.useQuery();
 
   return (
     <div>

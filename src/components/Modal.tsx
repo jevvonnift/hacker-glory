@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { XIcon } from "lucide-react";
-import { type HTMLAttributes, forwardRef } from "react";
+import { type HTMLAttributes, forwardRef, useEffect } from "react";
 import { cn } from "~/lib/utils";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -11,6 +11,11 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 
 const Modal = forwardRef<HTMLDivElement, Props>(
   ({ className, isOpen, showCloseIcon = true, onClose, ...props }, ref) => {
+    useEffect(() => {
+      if (isOpen) document.body.style.overflow = "hidden";
+      if (!isOpen) document.body.style.overflow = "unset";
+    }, [isOpen]);
+
     return (
       <AnimatePresence>
         {isOpen ? (
@@ -41,7 +46,7 @@ const Modal = forwardRef<HTMLDivElement, Props>(
                   </span>
                 )}
 
-                <div>{props.children}</div>
+                {props.children}
               </div>
             </motion.div>
 

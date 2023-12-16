@@ -7,7 +7,7 @@ import { api } from "~/trpc/react";
 
 const ListMyAnnouncementPage = () => {
   const { data: announcements, isLoading } =
-    api.announcement.getMySavedAnnouncements.useQuery();
+    api.announcement.getSaved.useQuery();
 
   return (
     <div>

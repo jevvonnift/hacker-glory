@@ -12,7 +12,7 @@ const MainPageNavbar = () => {
   const { session } = useSession();
 
   return (
-    <nav className=" z-50 flex items-center justify-between border-b bg-slate-100 pb-2">
+    <nav className=" sticky z-40 flex items-center justify-between border-b bg-slate-100 pb-2">
       <Logo />
       <div className="flex items-center gap-2">
         {session ? (
