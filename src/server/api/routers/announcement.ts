@@ -88,6 +88,49 @@ export const announcementRouter = createTRPCRouter({
             image: true,
           },
         },
+        savedBy: ctx.session
+          ? {
+              cursor: {
+                id: ctx.session.user.id,
+              },
+            }
+          : undefined,
+        category: true,
+        _count: {
+          select: {
+            comments: true,
+            savedBy: true,
+            visits: true,
+          },
+        },
+      },
+    });
+  }),
+  getMySavedAnnouncements: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.announcement.findMany({
+      where: {
+        publishedAt: {
+          lt: new Date(),
+        },
+        savedBy: {
+          some: {
+            id: ctx.session.user.id,
+          },
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            image: true,
+          },
+        },
+        savedBy: {
+          cursor: {
+            id: ctx.session.user.id,
+          },
+        },
         category: true,
         _count: {
           select: {
@@ -143,12 +186,47 @@ export const announcementRouter = createTRPCRouter({
             },
           },
           category: true,
+          savedBy: ctx.session
+            ? {
+                cursor: {
+                  id: ctx.session.user.id,
+                },
+              }
+            : undefined,
           _count: {
             select: {
               comments: true,
               savedBy: true,
               visits: true,
             },
+          },
+        },
+      });
+    }),
+  bookmarkAnnouncement: protectedProcedure
+    .input(
+      z.object({
+        id: z.string().min(1),
+        bookmark: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.announcement.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          savedBy: {
+            connect: input.bookmark
+              ? {
+                  id: ctx.session.user.id,
+                }
+              : undefined,
+            disconnect: !input.bookmark
+              ? {
+                  id: ctx.session.user.id,
+                }
+              : undefined,
           },
         },
       });

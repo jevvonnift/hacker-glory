@@ -8,6 +8,7 @@ import type { RouterOutputs } from "~/trpc/shared";
 import Avatar from "../Avatar";
 import Link from "next/link";
 import AnnouncementPriorityBadge from "./AnnouncementPriorityBadge";
+import { BookmarkIcon } from "lucide-react";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   announcement: RouterOutputs["announcement"]["getAllAnnouncements"][number];
@@ -36,9 +37,14 @@ const AnnouncementCard = forwardRef<HTMLDivElement, Props>(
                 {announcement.author.username}
               </p>
             </div>
-            <div>
+            <div className="flex gap-2">
               {announcement.priority === "PENTING" && (
                 <AnnouncementPriorityBadge priority={announcement.priority} />
+              )}
+              {!!announcement.savedBy?.length && (
+                <div className="rounded-full bg-yellow-500 p-2 text-white">
+                  <BookmarkIcon strokeWidth={1.2} size={20} fill="white" />
+                </div>
               )}
             </div>
           </div>

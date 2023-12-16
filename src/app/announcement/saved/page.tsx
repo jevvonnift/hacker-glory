@@ -2,12 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2Icon } from "lucide-react";
-import MyAnnouncementCard from "~/components/announcement/MyAnnouncementCard";
+import AnnouncementCard from "~/components/announcement/AnnouncementCard";
 import { api } from "~/trpc/react";
 
 const ListMyAnnouncementPage = () => {
   const { data: announcements, isLoading } =
-    api.announcement.getMyAnnouncements.useQuery();
+    api.announcement.getMySavedAnnouncements.useQuery();
 
   return (
     <div>
@@ -18,7 +18,7 @@ const ListMyAnnouncementPage = () => {
         transition={{ duration: 0.3 }}
         className="text-center text-3xl font-semibold"
       >
-        Pengumuman Saya
+        Pengumuman yang Disimpan
       </motion.h1>
 
       {isLoading && (
@@ -30,7 +30,7 @@ const ListMyAnnouncementPage = () => {
       {announcements && !announcements.length && !isLoading && (
         <div className="mt-4 flex w-full justify-center">
           <p className="mt-2 text-xl text-gray-500">
-            Kamu belum membuat pengumuman apapun.
+            Kamu belum menyimpan pengumuman apapun.
           </p>
         </div>
       )}
@@ -51,7 +51,7 @@ const ListMyAnnouncementPage = () => {
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.3, delay: 0.1 * idx }}
               >
-                <MyAnnouncementCard
+                <AnnouncementCard
                   className="break-inside-avoid-column"
                   announcement={announcement}
                 />

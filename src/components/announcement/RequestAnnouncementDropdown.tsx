@@ -15,7 +15,7 @@ const RequestAnnouncementDropdown = () => {
   return (
     <div className="relative">
       <Button
-        className="relative flex rounded-full p-3"
+        className="relative flex rounded-full p-2"
         onClick={() => setShowDropdown((s) => !s)}
       >
         <BellIcon strokeWidth={1.2} />

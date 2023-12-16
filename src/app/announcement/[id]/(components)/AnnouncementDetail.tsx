@@ -8,6 +8,12 @@ import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import AnnouncementPriorityBadge from "~/components/announcement/AnnouncementPriorityBadge";
 import Avatar from "~/components/Avatar";
+import Skeleton from "~/components/Skeleton";
+import Button from "~/components/Button";
+import { ArrowLeftIcon, BookmarkIcon } from "lucide-react";
+import toast from "react-hot-toast";
+import useSession from "~/hooks/useSession";
+import { useRouter } from "next/navigation";
 
 type Props = {
   announcement: NonNullable<
@@ -16,7 +22,10 @@ type Props = {
 };
 
 const AnnouncementDetail = ({ announcement: initialAnnouncement }: Props) => {
-  const { data: announcement } =
+  const { session } = useSession();
+  const router = useRouter();
+
+  const { data: announcement, refetch: refetchAnnouncement } =
     api.announcement.getDetailAnnouncement.useQuery(
       {
         id: initialAnnouncement.id,
@@ -26,50 +35,109 @@ const AnnouncementDetail = ({ announcement: initialAnnouncement }: Props) => {
       },
     );
 
+  const { mutate: bookmarkAnouncement } =
+    api.announcement.bookmarkAnnouncement.useMutation();
+
   const BlockNoteEditor = useMemo(
     () =>
       dynamic(() => import("~/components/editor/BlockNoteEditor"), {
         ssr: false,
-        loading: () => <div>Loading...</div>,
+        loading: () => <Skeleton className="h-7 w-full rounded-md" />,
       }),
     [],
   );
 
+  const handleBookmark = (bookmark: boolean) => {
+    if (!session) return toast.error("Masuk ke akun kamu terlebih dahulu!");
+    if (!announcement) return;
+
+    bookmarkAnouncement(
+      {
+        id: announcement.id,
+        bookmark,
+      },
+      {
+        async onSuccess() {
+          toast.success(
+            bookmark
+              ? "Berhasil meyimpan pengumuman"
+              : "Berhasil menghapus pengumuman dari daftar tersimpan.",
+          );
+          await refetchAnnouncement();
+        },
+        onError() {
+          toast.error("Gagal menyimpan pengnumuman");
+        },
+      },
+    );
+  };
+
   return announcement ? (
-    <div className="w-full max-w-4xl rounded-xl bg-white p-6">
-      <div className="mb-2 flex w-full flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <Avatar
-            src={announcement.author.image}
-            alt="User Profile"
-            className="h-10 w-10"
-          />
-          <span>{announcement.author.username}</span>
-        </div>
-        {announcement.priority === "PENTING" && (
-          <div>
-            <AnnouncementPriorityBadge priority={announcement.priority} />
-          </div>
+    <div className="w-full max-w-4xl">
+      <div className="flex items-center justify-between gap-2">
+        <Button
+          className="flex w-max items-center gap-2 rounded-full px-4"
+          onClick={() => router.back()}
+        >
+          <ArrowLeftIcon strokeWidth={1.2} />
+          <span>Kembali</span>
+        </Button>
+        {!!announcement.savedBy?.length ? (
+          <Button
+            className="rounded-full bg-yellow-500 p-2 text-white hover:bg-yellow-600 hover:disabled:bg-yellow-500"
+            onClick={() => handleBookmark(false)}
+          >
+            <BookmarkIcon strokeWidth={1.2} size={20} fill="white" />
+          </Button>
+        ) : (
+          <Button
+            className="rounded-full  p-2"
+            onClick={() => handleBookmark(true)}
+          >
+            <BookmarkIcon strokeWidth={1.2} size={20} />
+          </Button>
         )}
-        <div>
-          <span className="rounded-full border px-4 py-2 ">
-            Pengumuman {announcement.category.name}
-          </span>
+        {/* <Button></Button> */}
+      </div>
+      <div className="mt-4 rounded-xl bg-white p-6">
+        <div className="mb-2 flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:justify-between ">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <Avatar
+                src={announcement.author.image}
+                alt="User Profile"
+                className="h-9 w-9"
+              />
+              <span>{announcement.author.username}</span>
+            </div>
+            <div>
+              <span className="rounded-full border px-4 py-2 text-sm">
+                Pengumuman {announcement.category.name}
+              </span>
+            </div>
+          </div>
+          <div>
+            {announcement.priority === "PENTING" && (
+              <div>
+                <AnnouncementPriorityBadge priority={announcement.priority} />
+              </div>
+            )}
+          </div>
         </div>
+
+        <div className="mt-4">
+          <FilePreview
+            type={announcement.sourceType}
+            url={announcement.sourceURL}
+          />
+        </div>
+
+        <h1 className="my-4 text-2xl font-semibold text-[#3F3F3F] sm:text-3xl">
+          {announcement.title}
+        </h1>
+
+        <BlockNoteEditor initialContent={announcement.body} editable={false} />
       </div>
-
-      <div className="mt-4">
-        <FilePreview
-          type={announcement.sourceType}
-          url={announcement.sourceURL}
-        />
-      </div>
-
-      <h1 className="my-4 text-2xl font-semibold text-[#3F3F3F] sm:text-3xl">
-        {announcement.title}
-      </h1>
-
-      <BlockNoteEditor initialContent={announcement.body} editable={false} />
     </div>
   ) : null;
 };

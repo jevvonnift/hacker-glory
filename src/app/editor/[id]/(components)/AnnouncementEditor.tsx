@@ -226,7 +226,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
 
           <div className="flex items-center gap-2">
             <Button
-              className="text-md flex items-center gap-2 rounded-full bg-red-500 p-3 text-white hover:bg-red-600 hover:disabled:bg-red-500"
+              className="text-md flex items-center gap-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600 hover:disabled:bg-red-500"
               onClick={handleDelete}
               disabled={isUploading}
             >
@@ -235,7 +235,7 @@ const AnnoucementEditor = ({ announcement: annc }: Props) => {
 
             <Button
               onClick={openSaveModal}
-              className="text-md flex items-center gap-2 rounded-full p-3 sm:px-4 sm:py-2"
+              className="text-md flex items-center gap-2 rounded-full p-2 sm:px-4 sm:py-2"
             >
               <SaveIcon strokeWidth={1.5} size={20} />
               <span className="hidden sm:inline">Simpan</span>

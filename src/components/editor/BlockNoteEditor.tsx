@@ -21,7 +21,7 @@ type Props = {
 const ArticleEditor = ({ editable, initialContent, onChange }: Props) => {
   const editor: BlockNoteEditor = useBlockNote({
     editable,
-    initialContent: initialContent ? JSON.parse(initialContent) : [],
+    initialContent: initialContent ? JSON.parse(initialContent) : undefined,
     onEditorContentChange: (editor) => {
       if (!onChange) return;
       onChange(JSON.stringify(editor.topLevelBlocks, null, 2));

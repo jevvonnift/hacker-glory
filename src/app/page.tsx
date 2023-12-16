@@ -21,7 +21,7 @@ const HomePage = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="text-center text-2xl font-semibold text-gray-600"
+          className="text-center text-3xl font-semibold"
         >
           Pengumuman Saat Ini
         </motion.h1>
@@ -51,6 +51,7 @@ const HomePage = () => {
             >
               {announcements.map((announcement, idx) => (
                 <motion.div
+                  key={announcement.id}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}

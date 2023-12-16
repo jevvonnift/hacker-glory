@@ -17,13 +17,13 @@ const UserDropdown = () => {
   return session ? (
     <div className="relative">
       <Button
-        className="flex items-center justify-center gap-2 rounded-full p-2 sm:px-4"
+        className="flex items-center justify-center gap-2 rounded-full p-2 py-2 sm:px-4"
         onClick={() => setShowDropdown((s) => !s)}
       >
         <Avatar
           src={session?.user.image ?? "/img/default-user"}
           alt="User Profile Image"
-          className="h-[30px] w-[30px]"
+          className="h-7 w-7"
         />
         <span className="hidden sm:block">{session.user.username}</span>
       </Button>
