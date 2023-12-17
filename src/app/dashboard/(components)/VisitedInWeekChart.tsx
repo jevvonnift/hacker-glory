@@ -13,9 +13,15 @@ import {
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
   visitedData: RouterOutputs["statistic"]["getVisitedInWeek"];
+  disableTooltip?: boolean;
 }
 
-const VisitedInWeekChart = ({ visitedData, className, ...props }: Props) => {
+const VisitedInWeekChart = ({
+  visitedData,
+  disableTooltip,
+  className,
+  ...props
+}: Props) => {
   return (
     <div className={className} {...props}>
       <ResponsiveContainer width="100%" height={400} className="mt-2">
@@ -33,7 +39,7 @@ const VisitedInWeekChart = ({ visitedData, className, ...props }: Props) => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="label" />
           <YAxis />
-          <Tooltip />
+          {disableTooltip ? null : <Tooltip />}
           <Legend />
           <Line
             type="monotone"

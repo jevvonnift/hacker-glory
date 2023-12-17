@@ -8,7 +8,8 @@ import MostCommentedTable from "./(components)/MostCommentedTable";
 import { useState } from "react";
 import VisitedInWeekChart from "./(components)/VisitedInWeekChart";
 import VisitedInMonthChart from "./(components)/VisitedInMonthChart";
-import { Loader2Icon } from "lucide-react";
+import { FileTextIcon, Loader2Icon } from "lucide-react";
+import Button from "~/components/Button";
 
 const DashboardPage = () => {
   const { data: mostVisited } = api.statistic.getMostVisited.useQuery();
@@ -24,6 +25,18 @@ const DashboardPage = () => {
   return (
     <div>
       <h1 className="text-3xl font-semibold">Dashboard</h1>
+
+      <div className="mt-4">
+        <Button
+          className="flex items-center gap-2 px-4"
+          onClick={() => {
+            window.location.href = "/pdf/statistic";
+          }}
+        >
+          <FileTextIcon strokeWidth={1.2} />
+          <span>Export ke PDF</span>
+        </Button>
+      </div>
 
       <div className="mt-4 rounded-xl bg-white p-4">
         <div className="flex items-center justify-center gap-3">

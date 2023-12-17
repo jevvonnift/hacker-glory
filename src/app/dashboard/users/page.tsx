@@ -6,12 +6,8 @@ import {
   useReactTable,
   type ColumnDef,
   getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   getFilteredRowModel,
-  type SortingState,
   type ColumnFiltersState,
-  type VisibilityState,
   flexRender,
 } from "@tanstack/react-table";
 import type { RouterOutputs } from "~/trpc/shared";
