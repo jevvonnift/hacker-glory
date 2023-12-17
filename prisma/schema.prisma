@@ -6,7 +6,142 @@ generator client {
 }
 
 datasource db {
-    provider     = "mysql"
-    url          = env("DATABASE_URL")
-    relationMode = "prisma"
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+enum UserIdentityType {
+    NIP
+    NIS
+}
+
+model User {
+    id       String @id @default(cuid())
+    password String
+    username String @unique
+    email    String @unique
+    image    String
+
+    identityId   String
+    identityType UserIdentityType
+
+    createdAt DateTime
+    updatedAt DateTime @updatedAt
+
+    roleId Int
+    roles  Role @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    announcements      Announcement[]
+    savedAnnouncements Announcement[] @relation("savedAnnouncements")
+
+    comments Comment[]
+    visits   Visit[]
+    sessions Session[]
+
+    @@index([roleId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
+
+model Role {
+    id    Int    @id @default(autoincrement())
+    name  String
+    users User[]
+}
+
+enum AnnouncementSourceType {
+    IMAGE
+    VIDEO
+}
+
+enum AnnouncementPriority {
+    PENTING
+    BIASA
+}
+
+model Announcement {
+    id String @id @default(cuid())
+
+    title      String
+    sourceURL  String
+    sourceType AnnouncementSourceType
+    body       String                 @db.Text
+    priority   AnnouncementPriority
+
+    authorId String
+    author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    savedBy  User[] @relation("savedAnnouncements")
+
+    categoryId Int
+    category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    isAccepted Boolean
+    isDraft    Boolean
+
+    rejectedMessage String?
+    publishedAt     DateTime?
+    createdAt       DateTime
+    updatedAt       DateTime  @updatedAt
+
+    comments Comment[]
+    visits   Visit[]
+
+    @@index([authorId])
+    @@index([categoryId])
+}
+
+model Category {
+    id   Int    @id @default(autoincrement())
+    name String
+
+    announcements Announcement[]
+}
+
+model Comment {
+    id String @id @default(cuid())
+
+    body String @db.Text
+
+    announcementId String
+    announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    repliedToId String?
+    repliedTo   Comment? @relation(fields: [repliedToId], references: [id], name: "replied", onDelete: Cascade, onUpdate: Cascade)
+
+    repliedBy Comment[] @relation("replied")
+
+    createdAt DateTime
+    updatedAt DateTime @updatedAt
+
+    @@index([announcementId])
+    @@index([userId])
+    @@index([repliedToId])
+}
+
+model Visit {
+    id      String  @id @default(cuid())
+    isGuest Boolean
+
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    announcementId String
+    announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    createdAt DateTime
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+    @@index([announcementId])
 }
