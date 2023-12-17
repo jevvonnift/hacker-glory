@@ -4,9 +4,9 @@ import {
   GaugeIcon,
   type LucideIcon,
   ScrollIcon,
-  BarChart4Icon,
   UsersIcon,
   MenuIcon,
+  ListIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -64,9 +64,9 @@ const links: Link[] = [
     href: "/dashboard/announcements",
   },
   {
-    title: "Kunjungan",
-    icon: BarChart4Icon,
-    href: "/dashboard/profile",
+    title: "Kategori",
+    icon: ListIcon,
+    href: "/dashboard/categories",
   },
   {
     title: "Pengguna",
