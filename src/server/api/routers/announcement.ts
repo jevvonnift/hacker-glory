@@ -73,49 +73,59 @@ export const announcementRouter = createTRPCRouter({
       },
     });
   }),
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.announcement.findMany({
-      where: {
-        publishedAt: {
-          lt: new Date(),
-        },
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            image: true,
+  getAll: publicProcedure
+    .input(
+      z.object({
+        filter: z
+          .object({
+            orderBy: z.enum(["latest", "oldest"]).optional(),
+          })
+          .optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.announcement.findMany({
+        where: {
+          publishedAt: {
+            lt: new Date(),
           },
         },
-        savedBy: ctx.session
-          ? {
-              select: {
-                id: true,
-                username: true,
-                image: true,
-              },
-              cursor: {
-                id: ctx.session.user.id,
-              },
-            }
-          : undefined,
-        category: true,
-        _count: {
-          select: {
-            comments: true,
-            savedBy: true,
-            visits: true,
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+            },
+          },
+          savedBy: ctx.session
+            ? {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                },
+                cursor: {
+                  id: ctx.session.user.id,
+                },
+              }
+            : undefined,
+          category: true,
+          _count: {
+            select: {
+              comments: true,
+              savedBy: true,
+              visits: true,
+            },
           },
         },
-      },
-      orderBy: {
-        publishedAt: {
-          sort: "desc",
+        orderBy: {
+          publishedAt: {
+            sort: input.filter?.orderBy === "oldest" ? "asc" : "desc",
+          },
         },
-      },
-    });
-  }),
+      });
+    }),
   getSaved: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.announcement.findMany({
       where: {

@@ -21,7 +21,7 @@ const UserDropdown = () => {
         onClick={() => setShowDropdown((s) => !s)}
       >
         <Avatar
-          src={session?.user.image ?? "/img/default-user"}
+          src={session?.user.image ?? "/img/default-user.png"}
           alt="User Profile Image"
           className="h-7 w-7"
         />

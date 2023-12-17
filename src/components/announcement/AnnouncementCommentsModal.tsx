@@ -88,7 +88,7 @@ const AnnouncementCommentsModal = ({ announcementId, ...props }: Props) => {
           )}
           {!comments?.length && !isLoadingComments && (
             <div className="flex h-full items-center justify-center">
-              <p>Belum ada diskusi. Jadilah yang pertama!</p>
+              <p>Belum ada komentar. Jadilah yang pertama!</p>
             </div>
           )}
 

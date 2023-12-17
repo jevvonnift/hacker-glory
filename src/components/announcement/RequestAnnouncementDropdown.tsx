@@ -13,7 +13,7 @@ const RequestAnnouncementDropdown = () => {
   const router = useRouter();
 
   return (
-    <div className="relative">
+    <div>
       <Button
         className="relative flex rounded-full p-2"
         onClick={() => setShowDropdown((s) => !s)}
@@ -33,14 +33,14 @@ const RequestAnnouncementDropdown = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="absolute right-0 z-10 mt-2 flex-col gap-2 rounded-xl border bg-white p-4 transition-all"
+            className="absolute right-0 z-10 mt-2 flex-col gap-2 rounded-xl border bg-white py-4 transition-all"
             onMouseLeave={() => setShowDropdown(false)}
           >
-            <div className="flex w-[300px] flex-col gap-2">
+            <div className="flex w-[320px] flex-col">
               {announcemets &&
                 announcemets.map((announcement) => (
                   <div
-                    className="cursor-pointer rounded-md p-2 transition-all hover:bg-slate-100"
+                    className="cursor-pointer px-6 py-2 transition-all hover:bg-slate-100"
                     onClick={() =>
                       router.push(`/editor/preview/${announcement.id}`)
                     }
@@ -61,9 +61,9 @@ const RequestAnnouncementDropdown = () => {
                       />
                     </div>
 
-                    <div className="mt-2 line-clamp-1 font-semibold text-[#3F3F3F]">
+                    <p className="mt-2 line-clamp-2 text-[#3F3F3F]">
                       {announcement.title}
-                    </div>
+                    </p>
                   </div>
                 ))}
               {announcemets && !announcemets.length && (

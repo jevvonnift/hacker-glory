@@ -18,9 +18,9 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     <div>
       <MainPageNavbar />
 
-      <div className="mt-3 flex gap-2">
+      <div className="relative mt-3 flex flex-col gap-4 md:flex-row">
         <DashboardSidebar />
-        <div>{children}</div>
+        <div className="w-full">{children}</div>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import { ArrowLeftIcon, BookmarkIcon, MessagesSquareIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import useSession from "~/hooks/useSession";
 import { useRouter } from "next/navigation";
-import { useBoolean } from "usehooks-ts";
+import { useBoolean, useEffectOnce } from "usehooks-ts";
 import AnnouncementCommentsModal from "~/components/announcement/AnnouncementCommentsModal";
 
 type Props = {
@@ -42,9 +42,9 @@ const AnnouncementDetail = ({ announcement: initialAnnouncement }: Props) => {
         initialData: initialAnnouncement,
       },
     );
-
   const { mutate: bookmarkAnouncement, isLoading: isLoadingBookmarked } =
     api.announcement.bookmark.useMutation();
+  const { mutate: visitingAnnouncement } = api.visit.create.useMutation();
 
   const BlockNoteEditor = useMemo(
     () =>
@@ -79,6 +79,12 @@ const AnnouncementDetail = ({ announcement: initialAnnouncement }: Props) => {
       },
     );
   };
+
+  useEffectOnce(() => {
+    visitingAnnouncement({
+      announcementId: initialAnnouncement.id,
+    });
+  });
 
   return announcement ? (
     <>
@@ -116,7 +122,7 @@ const AnnouncementDetail = ({ announcement: initialAnnouncement }: Props) => {
         </div>
         <div className="mt-4 rounded-xl bg-white p-6">
           <div className="mb-2 flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:justify-between ">
-            <div className="flex items-center gap-2">
+            <div>
               <div className="flex items-center gap-2">
                 <Avatar
                   src={announcement.author.image}
@@ -125,13 +131,13 @@ const AnnouncementDetail = ({ announcement: initialAnnouncement }: Props) => {
                 />
                 <span>{announcement.author.username}</span>
               </div>
+            </div>
+            <div className="flex items-center gap-2">
               <div>
                 <span className="rounded-full border px-4 py-2 text-sm">
                   Pengumuman {announcement.category.name}
                 </span>
               </div>
-            </div>
-            <div>
               {announcement.priority === "PENTING" && (
                 <div>
                   <AnnouncementPriorityBadge priority={announcement.priority} />

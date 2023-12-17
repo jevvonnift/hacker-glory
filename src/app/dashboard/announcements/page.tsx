@@ -4,67 +4,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Loader2Icon } from "lucide-react";
 import AnnouncementCard from "~/components/announcement/AnnouncementCard";
 import { api } from "~/trpc/react";
-import MainPageNavbar from "./(components)/Navbar";
-import BottomNavbar from "./(components)/BottomNavbar";
-import { useRouter, useSearchParams } from "next/navigation";
 
-enum OrderByParamType {
-  latest = "latest",
-  oldest = "oldest",
-}
-
-const HomePage = () => {
-  const params = useSearchParams();
-  const paramOrderBy = params.get("orderBy");
-  const router = useRouter();
-
-  const orderBy = paramOrderBy
-    ? paramOrderBy in OrderByParamType
-      ? (paramOrderBy as OrderByParamType)
-      : undefined
-    : "latest";
-
+const DashboardAnnouncementsPage = () => {
   const {
     data: announcements,
     isLoading,
     isInitialLoading,
-  } = api.announcement.getAll.useQuery({
-    filter: {
-      orderBy,
-    },
-  });
-
-  const handleOrderByChange = (orderBy: OrderByParamType) => {
-    router.replace(`/?orderBy=${orderBy}`);
-  };
+  } = api.announcement.getAll.useQuery({});
 
   return (
     <div>
-      <MainPageNavbar />
+      <h1 className="text-3xl font-semibold">Semua Pengumuman Terunggah</h1>
 
       <div className="mt-4">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex items-center justify-between"
-        >
-          <h1 className="text-xl font-semibold sm:text-3xl">
-            Pengumuman Saat Ini
-          </h1>
-          <select
-            onChange={(e) =>
-              handleOrderByChange(e.target.value as OrderByParamType)
-            }
-            value={orderBy ?? "latest"}
-            className="rounded-md border px-4 py-2 focus-visible:outline-none"
-          >
-            <option value="latest">Terbaru</option>
-            <option value="oldest">Terlama</option>
-          </select>
-        </motion.div>
-
         {isInitialLoading && (
           <div className="mt-4 flex w-full justify-center">
             <Loader2Icon className="animate-spin" size={30} />
@@ -87,7 +39,7 @@ const HomePage = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               layout
-              className="mt-4 w-full space-y-4 sm:columns-2 lg:columns-3"
+              className="mt-4 w-full columns-1 content-center space-y-4 md:columns-1 lg:columns-2 xl:columns-3"
             >
               {announcements.map((announcement, idx) => (
                 <motion.div
@@ -108,10 +60,8 @@ const HomePage = () => {
           )}
         </AnimatePresence>
       </div>
-
-      <BottomNavbar />
     </div>
   );
 };
 
-export default HomePage;
+export default DashboardAnnouncementsPage;
