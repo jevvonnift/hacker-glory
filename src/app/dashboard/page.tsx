@@ -8,6 +8,7 @@ import MostCommentedTable from "./(components)/MostCommentedTable";
 import { useState } from "react";
 import VisitedInWeekChart from "./(components)/VisitedInWeekChart";
 import VisitedInMonthChart from "./(components)/VisitedInMonthChart";
+import { Loader2Icon } from "lucide-react";
 
 const DashboardPage = () => {
   const { data: mostVisited } = api.statistic.getMostVisited.useQuery();
@@ -15,18 +16,10 @@ const DashboardPage = () => {
   const { data: mostCommented } = api.statistic.getMostCommented.useQuery();
 
   const [selectedChart, setSelectedChart] = useState<"week" | "month">("week");
-  const { data: visitedInThisWeek } = api.statistic.getVisitedInWeek.useQuery(
-    undefined,
-    {
-      enabled: selectedChart === "week",
-    },
-  );
-  const { data: visitedInThisMonth } = api.statistic.getVisitedInMonth.useQuery(
-    undefined,
-    {
-      enabled: selectedChart === "month",
-    },
-  );
+  const { data: visitedInThisWeek, isLoading: isLoadingWeekData } =
+    api.statistic.getVisitedInWeek.useQuery();
+  const { data: visitedInThisMonth } =
+    api.statistic.getVisitedInMonth.useQuery();
 
   return (
     <div>
@@ -48,6 +41,12 @@ const DashboardPage = () => {
             <option value="month">Bulan Ini</option>
           </select>
         </div>
+
+        {isLoadingWeekData && (
+          <div className="mt-4 flex w-full justify-center">
+            <Loader2Icon className="animate-spin" size={30} />
+          </div>
+        )}
 
         {visitedInThisWeek && selectedChart === "week" && (
           <VisitedInWeekChart visitedData={visitedInThisWeek} />
