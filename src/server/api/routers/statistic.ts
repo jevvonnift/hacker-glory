@@ -1,5 +1,11 @@
+import { getDatesBetween, getDay } from "~/lib/utils";
 import { adminProcedure, createTRPCRouter } from "../trpc";
-import { startOfWeek, lastDayOfWeek } from "date-fns";
+import {
+  startOfWeek,
+  lastDayOfWeek,
+  startOfMonth,
+  lastDayOfMonth,
+} from "date-fns";
 
 export const statisticRouter = createTRPCRouter({
   getVisitedInWeek: adminProcedure.query(async ({ ctx }) => {
@@ -10,17 +16,84 @@ export const statisticRouter = createTRPCRouter({
       weekStartsOn: 2,
     });
 
-    console.log(startDayWeek, lastDayWeek);
-
-    return ctx.db.visit.groupBy({
-      by: ["createdAt"],
+    const visitedData = await ctx.db.visit.findMany({
       where: {
         createdAt: {
           gte: startDayWeek,
           lte: lastDayWeek,
         },
       },
+      select: {
+        id: true,
+        createdAt: true,
+      },
     });
+
+    const groupedData: {
+      label: string;
+      visited: 0;
+    }[] = [];
+
+    const allDaysWeeks = getDatesBetween(startDayWeek, lastDayWeek);
+    allDaysWeeks.forEach((date) =>
+      groupedData.push({
+        label: getDay(date),
+        visited: 0,
+      }),
+    );
+    visitedData.forEach((data) => {
+      const group = groupedData.findIndex(
+        (item) => item.label === getDay(data.createdAt),
+      );
+
+      //@ts-expect-error expect error undifined type check
+      if (group !== -1) groupedData[group].visited += 1;
+    });
+
+    return groupedData;
+  }),
+  getVisitedInMonth: adminProcedure.query(async ({ ctx }) => {
+    const startDayMonth = startOfMonth(new Date());
+    const lastDayMonth = lastDayOfMonth(new Date());
+
+    const visitedData = await ctx.db.visit.findMany({
+      where: {
+        createdAt: {
+          gte: startDayMonth,
+          lte: lastDayMonth,
+        },
+      },
+      select: {
+        id: true,
+        createdAt: true,
+      },
+    });
+
+    const groupedData: {
+      label: string;
+      visited: 0;
+    }[] = [];
+
+    for (let i = 1; i <= 4; i++) {
+      groupedData.push({
+        label: i.toString(),
+        visited: 0,
+      });
+    }
+
+    visitedData.forEach((data) => {
+      const group = groupedData.findIndex(
+        (item) =>
+          item.label === Math.ceil(data.createdAt.getDate() / 7).toString(),
+      );
+      //@ts-expect-error expect error undifined type check
+      if (group !== -1) groupedData[group].visited += 1;
+    });
+
+    return groupedData.map((data) => ({
+      ...data,
+      label: `Minggu ke ${data.label}`,
+    }));
   }),
   getMostVisited: adminProcedure.query(async ({ ctx }) => {
     return ctx.db.announcement.findMany({

@@ -36,11 +36,7 @@ const TableRow = forwardRef<
   HTMLTableRowElement,
   HTMLAttributes<HTMLTableRowElement>
 >(({ className, ...props }, ref) => (
-  <tr
-    ref={ref}
-    className={cn("border-b hover:bg-slate-300/50", className)}
-    {...props}
-  />
+  <tr ref={ref} className={cn("border-b", className)} {...props} />
 ));
 
 const TableHead = forwardRef<

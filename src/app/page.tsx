@@ -15,22 +15,23 @@ enum OrderByParamType {
 
 const HomePage = () => {
   const params = useSearchParams();
-  const orderBy = params.get("orderBy");
+  const paramOrderBy = params.get("orderBy");
   const router = useRouter();
+
+  const orderBy = paramOrderBy
+    ? paramOrderBy in OrderByParamType
+      ? (paramOrderBy as OrderByParamType)
+      : undefined
+    : "latest";
 
   const {
     data: announcements,
     isLoading,
     isInitialLoading,
   } = api.announcement.getAll.useQuery({
-    filter: orderBy
-      ? {
-          orderBy:
-            orderBy in OrderByParamType
-              ? (orderBy as OrderByParamType)
-              : undefined,
-        }
-      : undefined,
+    filter: {
+      orderBy,
+    },
   });
 
   const handleOrderByChange = (orderBy: OrderByParamType) => {
@@ -47,21 +48,20 @@ const HomePage = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex justify-between"
+          className="flex items-center justify-between"
         >
-          <h1 className="text-3xl font-semibold">Pengumuman Saat Ini</h1>
+          <h1 className="text-xl font-semibold sm:text-3xl">
+            Pengumuman Saat Ini
+          </h1>
           <select
             onChange={(e) =>
               handleOrderByChange(e.target.value as OrderByParamType)
             }
+            value={orderBy ?? "latest"}
             className="rounded-md border px-4 py-2 focus-visible:outline-none"
           >
-            <option value="latest" selected={!orderBy || orderBy === "latest"}>
-              Terbaru
-            </option>
-            <option value="oldest" selected={orderBy === "oldest"}>
-              Terlama
-            </option>
+            <option value="latest">Terbaru</option>
+            <option value="oldest">Terlama</option>
           </select>
         </motion.div>
 
