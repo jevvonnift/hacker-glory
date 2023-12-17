@@ -61,7 +61,7 @@ const links: Link[] = [
   {
     title: "Pengumuman",
     icon: ScrollIcon,
-    href: "/dashboard/profile",
+    href: "/dashboard/announcements",
   },
   {
     title: "Kunjungan",
