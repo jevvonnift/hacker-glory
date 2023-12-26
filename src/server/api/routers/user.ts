@@ -1,7 +1,5 @@
 import { z } from "zod";
 import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
-import { unlink } from "fs/promises";
-import { join } from "path";
 import { UserIdentityType } from "@prisma/client";
 
 export const userRouter = createTRPCRouter({
@@ -27,16 +25,6 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const uploadPath = join("./", "public");
-
-      if (ctx.session.user.image !== "/img/default-user.png") {
-        try {
-          await unlink(join(uploadPath, ctx.session.user.image));
-        } catch (error) {
-          console.log(error);
-        }
-      }
-
       const update = await ctx.db.user.update({
         where: {
           id: ctx.session.user.id,

@@ -39,7 +39,7 @@ async function main() {
    */
   await db.user.create({
     data: {
-      username: "admin",
+      username: "admin123",
       email: "admin@gmail.com",
       // admin password: "password"
       password: "$2b$10$A5nSCfpjdzdUbC2uXm1P6ej0MhWIsGh95KIwY7rObyM3e3N5u2Ouu",
@@ -49,6 +49,83 @@ async function main() {
       image: "/img/default-user.png",
       createdAt: new Date(),
     },
+  });
+
+  /**
+   * Seeding siswa account
+   */
+  await db.user.create({
+    data: {
+      username: "siswa123",
+      email: "siswa@gmail.com",
+      password: "$2b$10$A5nSCfpjdzdUbC2uXm1P6ej0MhWIsGh95KIwY7rObyM3e3N5u2Ouu",
+      roleId: 2,
+      identityId: "11111112",
+      identityType: "NIP",
+      image: "/img/default-user.png",
+      createdAt: new Date(),
+    },
+  });
+
+  /**
+   * Seeding osis account
+   */
+  await db.user.create({
+    data: {
+      username: "osis123",
+      email: "osis@gmail.com",
+      password: "$2b$10$A5nSCfpjdzdUbC2uXm1P6ej0MhWIsGh95KIwY7rObyM3e3N5u2Ouu",
+      roleId: 3,
+      identityId: "11111113",
+      identityType: "NIP",
+      image: "/img/default-user.png",
+      createdAt: new Date(),
+    },
+  });
+
+  /**
+   * Seeding guru account
+   */
+  await db.user.create({
+    data: {
+      username: "guru123",
+      email: "guru@gmail.com",
+      password: "$2b$10$A5nSCfpjdzdUbC2uXm1P6ej0MhWIsGh95KIwY7rObyM3e3N5u2Ouu",
+      roleId: 4,
+      identityId: "11111113",
+      identityType: "NIP",
+      image: "/img/default-user.png",
+      createdAt: new Date(),
+    },
+  });
+
+  /**
+   * Seeding ketegori
+   */
+  await db.category.createMany({
+    data: [
+      {
+        name: "Umum",
+      },
+      {
+        name: "Libur",
+      },
+      {
+        name: "Jadwal",
+      },
+      {
+        name: "Ulangan",
+      },
+      {
+        name: "Hasil Karya",
+      },
+      {
+        name: "Eksul",
+      },
+      {
+        name: "Event",
+      },
+    ],
   });
 }
 

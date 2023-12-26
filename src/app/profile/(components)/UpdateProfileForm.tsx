@@ -11,6 +11,7 @@ import { z } from "zod";
 import Avatar from "~/components/Avatar";
 import Button from "~/components/Button";
 import Input from "~/components/Input";
+import uploadFile from "~/server/lib/uploadFile";
 import { api } from "~/trpc/react";
 
 const UpdateProfileFormSchema = z.object({
@@ -81,35 +82,17 @@ const UpdateProfileForm = () => {
     if (!choosenFile) return;
 
     setIsLoadingUploadFile(true);
-    const formData = new FormData();
-    formData.append("file", choosenFile.file);
-
     try {
-      const request = await fetch("/api/file/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = (await request.json()) as {
-        success: boolean;
-        message: string;
-        data?: {
-          imagePath: string;
-        };
-      };
+      const data = await uploadFile(choosenFile.file);
 
       if (!data.success) {
         setIsLoadingUploadFile(false);
         return toast.error(data.message);
       }
-      if (!data.data) {
-        setIsLoadingUploadFile(false);
-        return toast.error("Terjadi kesalahan, silahkan coba lagi!");
-      }
 
       uploadProfilePicture(
         {
-          imagePath: data.data.imagePath,
+          imagePath: data.url,
         },
         {
           async onSuccess(data) {
