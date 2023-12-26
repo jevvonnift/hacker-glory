@@ -43,3 +43,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+hacker-glory-t3.zip
+creds.txt

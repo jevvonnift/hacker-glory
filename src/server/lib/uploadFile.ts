@@ -1,9 +1,12 @@
+import { env } from "~/env";
+
 const uploadFile = async (file: File) => {
   const formData = new FormData();
   formData.append("file", file);
+  const url = `${env.NEXT_PUBLIC_API_FILE_URL}/api/v1/file/upload`;
 
   try {
-    const request = await fetch("/api/file/upload", {
+    const request = await fetch(url, {
       method: "POST",
       body: formData,
     });
@@ -34,7 +37,7 @@ const uploadFile = async (file: File) => {
 
     return {
       success: true,
-      url: data.data.imagePath,
+      url: `${env.NEXT_PUBLIC_API_FILE_URL}/${data.data.imagePath}`,
       message: "Terjadi kesalahan, silahkan coba lagi!",
     };
   } catch (err) {
